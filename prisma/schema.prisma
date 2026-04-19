@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Blog {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  slug       String   @unique
+  authorId   String
+  authorName String
+  createdAt  DateTime @default(now())
+  comments   Comment[]
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  text       String
+  blogId     String
+  authorName String
+  createdAt  DateTime @default(now())
+
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  dateTime    DateTime
+  serviceType String
+  userId      String
+  createdAt   DateTime @default(now())
+}
