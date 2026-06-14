@@ -9,22 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0d0a08", // Deep warm cosmic/dark brown
-        foreground: "#fcf9f2",
-        accent: {
-          pink: "#ff8c00",   // Shifted to dark orange
-          blue: "#ffd700",   // Shifted to bright gold
-          gold: "#e6a147",   // Warm muted gold
-          purple: "#d35400"  // Deep terracotta
-        },
+        // Celestial surface
+        night:      "#23121C",
+        "night-2":  "#3A1F33",
+        gold:       "#E0B33C",
+
+        // Both surfaces
+        bhagva:     "#E8590C",
+        primary:    "#E8590C", // alias for bhagva
+
+        // Earthly surface
+        cream:      "#FFF8F0",
+        "cream-tint": "#FCE9DA",
+        ink:        "#2E1410",
+        "ink-muted":"#6B5046",
+
+        // Utility
+        white:      "#FFFFFF",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "sans-serif"],
-        heading: ["var(--font-outfit)", "sans-serif"],
+        sans:    ["var(--font-inter)", "sans-serif"],
+        heading: ["var(--font-poppins)", "sans-serif"],
       },
-      backgroundImage: {
-        'cosmic-gradient': 'linear-gradient(135deg, #0d0a08 0%, #2a1200 50%, #0d0a08 100%)',
-      }
     },
   },
   plugins: [],

@@ -47,7 +47,7 @@ export default async function Dashboard() {
                 <Link href="/booking" className="text-accent-pink hover:underline">Book a session &rarr;</Link>
               </GlassCard>
             ) : (
-              bookings.map(booking => (
+              bookings.map((booking: { id: string; serviceType: string; dateTime: Date }) => (
                 <GlassCard key={booking.id} className="p-6">
                   <h3 className="font-bold text-lg mb-2">{booking.serviceType}</h3>
                   <div className="flex justify-between items-center text-sm text-gray-400 border-t border-white/10 pt-4 mt-4">
@@ -79,7 +79,7 @@ export default async function Dashboard() {
                 <Link href="/blog/create" className="text-accent-blue hover:underline">Start writing &rarr;</Link>
               </GlassCard>
             ) : (
-              blogs.map(blog => (
+              blogs.map((blog: { id: string; slug: string; title: string; createdAt: Date }) => (
                 <Link key={blog.id} href={`/blog/${blog.slug}`} className="block">
                   <GlassCard className="p-6 hover:border-accent-pink/50 transition-colors">
                     <h3 className="font-bold text-lg mb-2 truncate">{blog.title}</h3>

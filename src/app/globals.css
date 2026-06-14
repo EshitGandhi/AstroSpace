@@ -2,53 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .glass {
-    @apply bg-white/5 backdrop-blur-md border border-[#e6a147]/20 shadow-xl;
-  }
-  .glass-card {
-    @apply bg-[#1c1208]/80 backdrop-blur-lg border border-[#e6a147]/20 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)];
-  }
-  .text-glow {
-    text-shadow: 0 0 10px rgba(255, 140, 0, 0.5), 0 0 20px rgba(255, 140, 0, 0.3);
-  }
-  .text-glow-blue {
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
-  }
-}
-
+/* ── Design tokens as CSS custom properties ── */
 :root {
-  --foreground-rgb: 252, 249, 242;
-  --background-start-rgb: 13, 10, 8;
-  --background-end-rgb: 0, 0, 0;
+  --night:      #23121C;
+  --night-2:    #3A1F33;
+  --gold:       #E0B33C;
+  --bhagva:     #E8590C;
+  --cream:      #FFF8F0;
+  --cream-tint: #FCE9DA;
+  --ink:        #2E1410;
+  --ink-muted:  #6B5046;
+  --white:      #FFFFFF;
 }
 
+/* ── Base body: Earthly surface by default ── */
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--ink);
+  background: var(--cream);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
+/* ── Surface utility classes ── */
+@layer utilities {
+  .surface-celestial {
+    background-color: var(--night);
+    color: var(--white);
+  }
+  .surface-earthly {
+    background-color: var(--cream);
+    color: var(--ink);
+  }
+}
+
+/* ── Custom scrollbar ── */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d0a08;
+  background: var(--night);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d35400;
+  background: var(--bhagva);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff8c00;
+  background: var(--gold);
 }
+
