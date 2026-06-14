@@ -22,23 +22,32 @@ export const ZODIAC_SIGNS: ZodiacSign[] = [
   { name: "Meena (Pisces)", element: "Water", ruler: "Jupiter", traits: ["Compassionate", "Artistic", "Intuitive"], startDate: "03-15", endDate: "04-13" },
 ];
 
+function dayOfYear(month: number, day: number): number {
+  const daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  let doy = day;
+  for (let m = 1; m < month; m++) doy += daysInMonth[m];
+  return doy;
+}
+
+function parseMMDD(mmdd: string): number {
+  const [m, d] = mmdd.split("-").map(Number);
+  return dayOfYear(m, d);
+}
+
 export function getZodiacSign(date: Date): ZodiacSign | null {
-  const month = date.getMonth() + 1; // 1-12
+  const month = date.getMonth() + 1;
   const day = date.getDate();
+  const current = dayOfYear(month, day);
 
   for (const sign of ZODIAC_SIGNS) {
-    const [startMonth, startDay] = sign.startDate.split("-").map(Number);
-    const [endMonth, endDay] = sign.endDate.split("-").map(Number);
+    const start = parseMMDD(sign.startDate);
+    const end = parseMMDD(sign.endDate);
 
-    // Handle spanning across Jan/Dec if logic requires
-    if (startMonth > endMonth) {
-      if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
-        return sign;
-      }
+    if (start > end) {
+      // Spans year boundary (e.g. Dhanu: Dec 16 – Jan 14)
+      if (current >= start || current <= end) return sign;
     } else {
-      if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
-        return sign;
-      }
+      if (current >= start && current <= end) return sign;
     }
   }
 

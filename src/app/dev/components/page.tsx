@@ -5,6 +5,7 @@ import AnimatedButton from "@/components/ui/AnimatedButton";
 import HouseCard from "@/components/ui/HouseCard";
 import ServiceCard from "@/components/ui/ServiceCard";
 import AstrologerCard from "@/components/ui/AstrologerCard";
+import KundliChart, { SAMPLE_CHART_HOUSES } from "@/components/kundli/KundliChart";
 
 export default function DevComponentsShowcase() {
   const handleBook = () => {
@@ -256,6 +257,29 @@ export default function DevComponentsShowcase() {
               pricePerMinute={25}
               onBook={handleBook}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Hero + KundliChart */}
+      <section className="border border-ink/10 rounded-3xl p-8 bg-cream text-ink space-y-10">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-bhagva">Layout</span>
+          <h2 className="text-2xl font-bold font-heading text-ink mt-1">Hero & KundliChart</h2>
+        </div>
+        <div className="rounded-2xl overflow-hidden border border-ink/10">
+          <div className="scale-[0.85] origin-top -mb-16 pointer-events-none">
+            {/* Hero preview is full-width; shown scaled down */}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 className="text-sm font-bold text-ink-muted mb-3">KundliChart — North / Night</h3>
+            <KundliChart houses={SAMPLE_CHART_HOUSES} style="north" surface="night" className="bg-night rounded-xl p-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-ink-muted mb-3">KundliChart — South / Cream</h3>
+            <KundliChart houses={SAMPLE_CHART_HOUSES} style="south" surface="cream" className="bg-cream rounded-xl p-4 border border-ink/10" />
           </div>
         </div>
       </section>

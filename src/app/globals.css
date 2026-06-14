@@ -35,7 +35,12 @@ body {
   }
 }
 
-/* ── Custom scrollbar ── */
+/* ── Focus rings for accessibility ── */
+:focus-visible {
+  outline: 2px solid var(--bhagva);
+  outline-offset: 2px;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }

@@ -65,7 +65,7 @@ export default function NavRail() {
     <div className="flex flex-col items-center text-center gap-3">
       <Link href="/" onClick={() => setDrawerOpen(false)}>
         <Image
-          src="/logo.png"
+          src="/logo.svg"
           alt="AstroGuru Logo"
           width={72}
           height={72}
@@ -128,7 +128,7 @@ export default function NavRail() {
       {/* ════════ Mobile header bar (< 1024px) ════════ */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-night px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="AstroGuru" width={36} height={36} className="rounded-full" />
+          <Image src="/logo.svg" alt="AstroGuru" width={36} height={36} className="rounded-full" />
           <span className="text-white font-heading font-bold text-base">
             Astro<span className="text-bhagva">Guru</span>
           </span>

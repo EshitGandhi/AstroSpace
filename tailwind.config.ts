@@ -28,8 +28,8 @@ const config: Config = {
         white:      "#FFFFFF",
       },
       fontFamily: {
-        sans:    ["var(--font-inter)", "sans-serif"],
-        heading: ["var(--font-poppins)", "sans-serif"],
+        sans:    ["var(--font-inter)", "var(--font-devanagari)", "sans-serif"],
+        heading: ["var(--font-poppins)", "var(--font-devanagari)", "sans-serif"],
       },
     },
   },

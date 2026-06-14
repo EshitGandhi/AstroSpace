@@ -4,7 +4,7 @@ import { useState } from "react";
 import Badge from "@/components/ui/Badge";
 import AnimatedButton from "@/components/ui/AnimatedButton";
 import Link from "next/link";
-import { ArrowRight, Info } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getZodiacSign, ZodiacSign } from "@/lib/zodiac";
 
 export default function FreeToolsPage() {
@@ -65,7 +65,7 @@ export default function FreeToolsPage() {
                 className="w-full px-4 py-3 rounded-xl border border-ink/20 bg-cream focus:outline-none focus:border-bhagva focus:ring-1 focus:ring-bhagva transition-colors"
               />
               <p className="text-xs text-ink-muted flex items-center gap-1 mt-1">
-                <Info className="w-3 h-3" /> Time helps calculate the exact Nakshatra if born on a cusp.
+                Sun-sign Rashi uses date of birth only. For Moon-sign (Chandra Rashi), generate your full Kundli.
               </p>
             </div>
 

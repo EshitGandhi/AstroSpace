@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { calculateKundli } from "@/lib/jyotish";
+import { calculateKundli } from "@/lib/vedic/calculate.server";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { date, time, lat, lng } = body;
+    const { name, date, time, lat, lng, timezone } = body;
 
-    // Strict validation to prevent silent failures
     if (!date || !time || lat === undefined || lng === undefined) {
       return NextResponse.json(
         { error: "Missing required birth details (date, time, lat, lng)" },
@@ -14,8 +13,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Call our "astronomy engine"
-    const chartData = calculateKundli(date, time, Number(lat), Number(lng));
+    const chartData = calculateKundli({
+      name,
+      date,
+      time,
+      lat: Number(lat),
+      lng: Number(lng),
+      timezone: timezone ?? "Asia/Kolkata",
+    });
 
     return NextResponse.json(chartData, { status: 200 });
   } catch (error) {

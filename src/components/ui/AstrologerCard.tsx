@@ -23,7 +23,6 @@ export default function AstrologerCard({
   rating,
   pricePerMinute,
   imageUrl,
-  bookingLink = "/consultation",
   onBook,
 }: AstrologerCardProps) {
   return (
