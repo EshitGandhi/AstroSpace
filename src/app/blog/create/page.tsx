@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import GlassCard from "@/components/ui/GlassCard";
@@ -11,8 +11,9 @@ import { PenTool, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function CreateBlog() {
-  const { isLoaded, userId } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const userId = session?.user?.id;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,7 +23,7 @@ export default function CreateBlog() {
   });
   const [loading, setLoading] = useState(false);
 
-  if (!isLoaded) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="animate-spin w-8 h-8 border-4 border-bhagva border-t-transparent rounded-full" />
@@ -30,7 +31,7 @@ export default function CreateBlog() {
     );
   }
 
-  if (isLoaded && !userId) {
+  if (status !== "loading" && !userId) {
     router.push("/sign-in");
     return null;
   }

@@ -1,5 +1,5 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 import ProfileEditClient from "@/components/profile/ProfileEditClient";
@@ -10,27 +10,19 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const { userId } = auth();
-  if (!userId) redirect("/sign-in");
+  const session = await getSession();
+  if (!session?.user?.id) redirect("/sign-in");
 
-  // Fetch from both Clerk (name/email/avatar) and our DB (astrological details) in parallel
-  const [clerkUser, dbProfile] = await Promise.all([
-    currentUser(),
-    prisma.userProfile.findUnique({ where: { clerkUserId: userId } }),
-  ]);
-
-  const clerkName = clerkUser
-    ? [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ")
-    : "";
-  const clerkEmail = clerkUser?.primaryEmailAddress?.emailAddress ?? "";
-  const clerkPhoto = clerkUser?.imageUrl ?? "";
+  const dbProfile = await prisma.userProfile.findUnique({
+    where: { userId: session.user.id },
+  });
 
   return (
     <ProfileEditClient
       profile={dbProfile}
-      clerkName={clerkName}
-      clerkEmail={clerkEmail}
-      clerkPhoto={clerkPhoto}
+      clerkName={session.user.name ?? ""}
+      clerkEmail={session.user.email ?? ""}
+      clerkPhoto=""
     />
   );
 }

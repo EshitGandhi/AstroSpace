@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Badge from "@/components/ui/Badge";
@@ -13,8 +13,9 @@ import { ASTROLOGERS, generateTimeSlots, type Astrologer } from "@/lib/astrologe
 import { Calendar, CheckCircle2 } from "lucide-react";
 
 export default function ConsultationPageClient() {
-  const { isLoaded, userId } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const userId = session?.user?.id;
 
   const [selected, setSelected] = useState<Astrologer | null>(null);
   const [date, setDate] = useState("");

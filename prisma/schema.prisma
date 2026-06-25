@@ -7,15 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ── Auth ──────────────────────────────────────────
+model User {
+  id        String      @id @default(cuid())
+  name      String
+  email     String      @unique
+  password  String
+  createdAt DateTime    @default(now())
+
+  profile   UserProfile?
+  bookings  Booking[]
+  blogs     Blog[]
+}
+
+// ── Blog ─────────────────────────────────────────
 model Blog {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   title      String
   content    String
-  slug       String   @unique
+  slug       String    @unique
   authorId   String
   authorName String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
   comments   Comment[]
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -28,24 +44,28 @@ model Comment {
   blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
 }
 
+// ── Booking ───────────────────────────────────────
 model Booking {
-  id                 String   @id @default(cuid())
-  name               String
-  email              String
-  dateTime           DateTime
-  serviceType        String
-  userId             String
-  astrologerId       String?
-  amount             Int?
-  paymentStatus      String   @default("pending")
-  razorpayOrderId    String?
-  razorpayPaymentId  String?
-  createdAt          DateTime @default(now())
+  id                String   @id @default(cuid())
+  name              String
+  email             String
+  dateTime          DateTime
+  serviceType       String
+  userId            String
+  astrologerId      String?
+  amount            Int?
+  paymentStatus     String   @default("pending")
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// ── User Profile (astrological details) ──────────
 model UserProfile {
   id               String    @id @default(cuid())
-  clerkUserId      String    @unique
+  userId           String    @unique
   photoUrl         String?
   gender           String?
   dateOfBirth      DateTime?
@@ -66,4 +86,6 @@ model UserProfile {
   profileComplete  Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

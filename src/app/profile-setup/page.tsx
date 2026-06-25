@@ -1,25 +1,28 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import UserProfileForm from "@/components/profile/UserProfileForm";
 import { Star, Sparkles } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Complete Your Profile | AstroGuru",
+  description: "Set up your astrological profile to receive personalized Kundli, horoscope, and guidance.",
+};
 
 export default async function ProfileSetupPage() {
-  const { userId } = auth();
+  const session = await getSession();
 
-  if (!userId) {
+  if (!session?.user?.id) {
     redirect("/sign-in");
   }
 
-  // Pre-fetch existing profile (for edit / return visits)
   const existingProfile = await prisma.userProfile.findUnique({
-    where: { clerkUserId: userId },
+    where: { userId: session.user.id },
   });
 
-  // If user already has a complete profile, ensure the cookie is set
-  // so middleware won't block them after they leave this page
   if (existingProfile?.profileComplete) {
     cookies().set("profile_complete", "1", {
       httpOnly: false,
@@ -28,7 +31,6 @@ export default async function ProfileSetupPage() {
       sameSite: "lax",
     });
   }
-
 
   const totalSteps = 6;
   const completedSteps = existingProfile
@@ -47,16 +49,13 @@ export default async function ProfileSetupPage() {
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto">
-
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="mb-8">
-          {/* Brand */}
           <Link href="/" className="inline-flex items-center gap-2 text-bhagva font-bold font-heading text-lg mb-6 hover:opacity-80 transition-opacity">
             <Star className="w-5 h-5 fill-current" />
             AstroGuru
           </Link>
 
-          {/* Title block */}
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 bg-bhagva/10 text-bhagva text-xs font-semibold px-3 py-1.5 rounded-full mb-3">
@@ -72,16 +71,12 @@ export default async function ProfileSetupPage() {
               </p>
             </div>
 
-            {/* Circular progress */}
+            {/* Circular progress desktop */}
             <div className="flex-shrink-0 hidden sm:flex flex-col items-center gap-1">
               <div className="relative w-16 h-16">
                 <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
                   <circle cx="32" cy="32" r="26" fill="none" stroke="#FCE9DA" strokeWidth="5" />
-                  <circle
-                    cx="32" cy="32" r="26"
-                    fill="none"
-                    stroke="#E8590C"
-                    strokeWidth="5"
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="#E8590C" strokeWidth="5"
                     strokeLinecap="round"
                     strokeDasharray={`${2 * Math.PI * 26}`}
                     strokeDashoffset={`${2 * Math.PI * 26 * (1 - progressPct / 100)}`}
@@ -96,34 +91,25 @@ export default async function ProfileSetupPage() {
             </div>
           </div>
 
-          {/* Linear progress bar (mobile) */}
+          {/* Mobile progress bar */}
           <div className="sm:hidden mt-5">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold text-ink-muted">{completedSteps} of {totalSteps} sections filled</span>
               <span className="text-xs font-bold text-bhagva">{progressPct}%</span>
             </div>
             <div className="h-2 bg-cream-tint rounded-full overflow-hidden">
-              <div
-                className="h-full bg-bhagva rounded-full transition-all duration-700"
-                style={{ width: `${progressPct}%` }}
-              />
+              <div className="h-full bg-bhagva rounded-full transition-all duration-700" style={{ width: `${progressPct}%` }} />
             </div>
           </div>
         </div>
 
-        {/* ── Form ── */}
         <UserProfileForm initialData={existingProfile} />
 
-        {/* ── Skip link ── */}
         <div className="text-center mt-4 mb-8 lg:mb-0">
-          <Link
-            href="/dashboard"
-            className="text-sm text-ink-muted hover:text-ink-muted/70 transition-colors underline underline-offset-4"
-          >
+          <Link href="/dashboard" className="text-sm text-ink-muted hover:text-ink-muted/70 transition-colors underline underline-offset-4">
             Skip for now — I&apos;ll complete this later
           </Link>
         </div>
-
       </div>
     </div>
   );

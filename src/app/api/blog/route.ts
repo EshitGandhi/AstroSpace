@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
-    if (!userId) {
+    const session = await getSession();
+    if (!session?.user?.id) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -15,15 +15,14 @@ export async function POST(req: Request) {
       return new NextResponse("Missing title, content or name", { status: 400 });
     }
 
-    // simplistic slug generation
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString().slice(-4);
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString().slice(-4);
 
     const blog = await prisma.blog.create({
       data: {
         title,
         content,
         slug,
-        authorId: userId,
+        authorId: session.user.id,
         authorName: name,
       },
     });

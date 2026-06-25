@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, Poppins, Noto_Sans_Devanagari } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 import NavRail from "@/components/layout/NavRail";
 import Footer from "@/components/layout/Footer";
+import SessionProvider from "@/components/providers/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({
@@ -37,30 +37,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable} font-sans antialiased bg-cream text-ink`}>
+    <html lang="en">
+      <body className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable} font-sans antialiased bg-cream text-ink`}>
+        <SessionProvider>
           <NavRail />
-          {/* Content area: offset by rail width on desktop, by mobile header on small screens */}
           <div className="lg:ml-[300px] pt-16 lg:pt-0 min-h-screen flex flex-col bg-cream">
             <main className="flex-1 bg-cream">
               {children}
             </main>
             <Footer />
           </div>
-          <Toaster 
+          <Toaster
             position="bottom-right"
             toastOptions={{
               style: {
-                background: '#FFF8F0',
-                color: '#2E1410',
-                border: '1px solid #FCE9DA',
+                background: "#FFF8F0",
+                color: "#2E1410",
+                border: "1px solid #FCE9DA",
               },
             }}
           />
-        </body>
-      </html>
-    </ClerkProvider>
+        </SessionProvider>
+      </body>
+    </html>
   );
 }
-

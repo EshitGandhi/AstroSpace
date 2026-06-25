@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
 import {
   Home,
   User,
@@ -14,9 +14,9 @@ import {
   X,
   LogIn,
   UserCircle2,
+  LogOut,
 } from "lucide-react";
 
-/** Reference sidebar: 4 items, uppercase, orange rail */
 const NAV_ITEMS = [
   { label: "HOME", href: "/", icon: Home },
   { label: "ABOUT GURU", href: "/about", icon: User },
@@ -45,27 +45,15 @@ function NavLink({
         active ? "opacity-100" : "opacity-90 hover:opacity-100"
       }`}
     >
-      <Icon
-        className="w-7 h-7 shrink-0 text-white"
-        strokeWidth={2.25}
-        aria-hidden
-      />
-      <span className="nav-rail-label text-sm sm:text-base leading-tight">
-        {item.label}
-      </span>
+      <Icon className="w-7 h-7 shrink-0 text-white" strokeWidth={2.25} aria-hidden />
+      <span className="nav-rail-label text-sm sm:text-base leading-tight">{item.label}</span>
     </Link>
   );
 }
 
 function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <Link
-      href="/"
-      onClick={onNavigate}
-      className="block w-full mt-auto pt-6"
-      aria-label="AstroGuru home"
-    >
-      {/* Reference logo — guru mascot + wordmark, bottom-anchored crop */}
+    <Link href="/" onClick={onNavigate} className="block w-full mt-auto pt-6" aria-label="AstroGuru home">
       <div className="relative w-full h-[min(42vh,300px)] min-h-[200px] overflow-hidden">
         <Image
           src="/guru-sidebar-reference.png"
@@ -81,56 +69,65 @@ function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center py-3 border-t border-white/20">
+        <div className="w-7 h-7 rounded-full bg-white/20 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (session?.user) {
+    return (
+      <div className="flex flex-col gap-2 py-3 border-t border-white/20">
+        {/* Avatar + name */}
+        <div className="flex items-center gap-2.5 px-1">
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            {session.user.name?.charAt(0).toUpperCase()}
+          </div>
+          <span className="text-white text-xs font-semibold truncate nav-rail-label-sm">
+            {session.user.name}
+          </span>
+        </div>
+        {/* Sign out */}
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
+        >
+          <LogOut className="w-4 h-4" strokeWidth={2.5} />
+          Sign Out
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center gap-3 py-3 border-t border-white/20">
-      <SignedIn>
-        <UserButton
-          afterSignOutUrl="/"
-          appearance={{
-            elements: {
-              avatarBox: "w-9 h-9 ring-2 ring-white/40",
-            },
-          }}
-        />
-      </SignedIn>
-      <SignedOut>
-        <Link
-          href="/sign-in"
-          onClick={onNavigate}
-          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/90 hover:text-white nav-rail-label-sm"
-        >
-          <LogIn className="w-4 h-4" strokeWidth={2.5} />
-          Sign In
-        </Link>
-      </SignedOut>
+      <Link
+        href="/sign-in"
+        onClick={onNavigate}
+        className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/90 hover:text-white nav-rail-label-sm"
+      >
+        <LogIn className="w-4 h-4" strokeWidth={2.5} />
+        Sign In
+      </Link>
     </div>
   );
 }
 
-function RailContent({
-  onNavigate,
-  className = "",
-}: {
-  onNavigate?: () => void;
-  className?: string;
-}) {
+function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; className?: string }) {
   const pathname = usePathname();
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
     <div className={`flex flex-col h-full px-5 py-8 ${className}`}>
       <nav className="flex flex-col gap-1 pt-2" aria-label="Main navigation">
         {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.href}
-            item={item}
-            active={isActive(item.href)}
-            onNavigate={onNavigate}
-          />
+          <NavLink key={item.href} item={item} active={isActive(item.href)} onNavigate={onNavigate} />
         ))}
       </nav>
-
       <div className="flex flex-col flex-1 min-h-0">
         <AuthBlock onNavigate={onNavigate} />
         <BrandBlock onNavigate={onNavigate} />
@@ -146,18 +143,12 @@ export default function NavRail() {
   return (
     <>
       {/* Desktop rail */}
-      <aside
-        className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col"
-        style={{ backgroundColor: RAIL_ORANGE }}
-      >
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col" style={{ backgroundColor: RAIL_ORANGE }}>
         <RailContent />
       </aside>
 
       {/* Mobile header */}
-      <header
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md"
-        style={{ backgroundColor: RAIL_ORANGE }}
-      >
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md" style={{ backgroundColor: RAIL_ORANGE }}>
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/guru-sidebar-reference.png"
@@ -168,7 +159,6 @@ export default function NavRail() {
           />
           <span className="nav-rail-label text-base">ASTRO GURU</span>
         </Link>
-
         <button
           type="button"
           onClick={() => setDrawerOpen(!drawerOpen)}
@@ -181,11 +171,7 @@ export default function NavRail() {
       </header>
 
       {drawerOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/50"
-          onClick={closeDrawer}
-          aria-hidden
-        />
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={closeDrawer} aria-hidden />
       )}
 
       {/* Mobile drawer */}

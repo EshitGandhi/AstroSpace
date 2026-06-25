@@ -1,52 +1,61 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-// Routes only signed-in users can access
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/blog/create(.*)",
-  "/profile-setup(.*)",
-  "/profile(.*)",
-  "/kundli(.*)",
-  "/booking(.*)",
-  "/consultation(.*)",
-]);
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const { pathname } = req.nextUrl;
 
-// Routes that should NOT be redirected to /profile-setup even if profile is incomplete
-const isProfileExempt = createRouteMatcher([
-  "/profile-setup(.*)",
-  "/profile(.*)",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/api(.*)",
-]);
+    // Authenticated users visiting auth pages → redirect to dashboard
+    if (token && (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up"))) {
+      return NextResponse.redirect(new URL("/profile-setup", req.url));
+    }
 
-export default clerkMiddleware((auth, req) => {
-  // Protect API routes
-  if (
-    req.nextUrl.pathname.startsWith("/api/booking") ||
-    (req.nextUrl.pathname === "/api/blog" && req.method === "POST")
-  ) {
-    auth().protect();
+    // Profile gate: authenticated but no profile_complete cookie → /profile-setup
+    const profileComplete = req.cookies.get("profile_complete")?.value === "1";
+    const isProfileExempt =
+      pathname.startsWith("/profile-setup") ||
+      pathname.startsWith("/profile") ||
+      pathname.startsWith("/sign-in") ||
+      pathname.startsWith("/sign-up") ||
+      pathname.startsWith("/api");
+
+    if (token && !profileComplete && !isProfileExempt) {
+      return NextResponse.redirect(new URL("/profile-setup", req.url));
+    }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      // Only run middleware logic on protected routes
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl;
+
+        const protectedPaths = [
+          "/dashboard",
+          "/profile-setup",
+          "/profile",
+          "/kundli",
+          "/booking",
+          "/consultation",
+          "/blog/create",
+          "/api/booking",
+          "/api/profile",
+          "/api/payments",
+        ];
+
+        const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
+        if (isProtected && !token) return false; // triggers redirect to signIn page
+        return true;
+      },
+    },
   }
-
-  if (isProtectedRoute(req)) {
-    auth().protect();
-  }
-
-  // If user is authenticated but has no profile cookie, redirect to /profile-setup
-  const { userId } = auth();
-  const profileComplete = req.cookies.get("profile_complete")?.value === "1";
-
-  if (userId && !profileComplete && !isProfileExempt(req)) {
-    const profileSetupUrl = new URL("/profile-setup", req.url);
-    return NextResponse.redirect(profileSetupUrl);
-  }
-});
+);
 
 export const config = {
   matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
   ],
 };

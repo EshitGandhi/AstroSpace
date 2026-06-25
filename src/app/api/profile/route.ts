@@ -1,21 +1,20 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/profile – fetch current user's profile
+// GET /api/profile
 export async function GET() {
-  const { userId } = auth();
-  if (!userId) {
+  const session = await getSession();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const profile = await prisma.userProfile.findUnique({
-    where: { clerkUserId: userId },
+    where: { userId: session.user.id },
   });
 
   const response = NextResponse.json(profile ?? null);
 
-  // Re-set cookie in case the user is on a new device / cleared cookies
   if (profile?.profileComplete) {
     response.cookies.set("profile_complete", "1", {
       httpOnly: false,
@@ -28,45 +27,27 @@ export async function GET() {
   return response;
 }
 
-
-// POST /api/profile – upsert current user's profile
+// POST /api/profile – full upsert (onboarding)
 export async function POST(req: NextRequest) {
-  const { userId } = auth();
-  if (!userId) {
+  const session = await getSession();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
-
   const {
-    photoUrl,
-    gender,
-    dateOfBirth,
-    timeOfBirth,
-    birthTimeUnknown,
-    birthCity,
-    birthState,
-    birthCountry,
-    birthLat,
-    birthLng,
-    birthTimezone,
-    currentCity,
-    currentLat,
-    currentLng,
-    language,
-    maritalStatus,
-    caste,
+    photoUrl, gender, dateOfBirth, timeOfBirth, birthTimeUnknown,
+    birthCity, birthState, birthCountry, birthLat, birthLng, birthTimezone,
+    currentCity, currentLat, currentLng, language, maritalStatus, caste,
   } = body;
 
-  const profileComplete = Boolean(
-    gender && dateOfBirth && birthCity && birthCountry
-  );
+  const profileComplete = Boolean(gender && dateOfBirth && birthCity && birthCountry);
 
   try {
     const profile = await prisma.userProfile.upsert({
-      where: { clerkUserId: userId },
+      where: { userId: session.user.id },
       create: {
-        clerkUserId: userId,
+        userId: session.user.id,
         photoUrl: photoUrl ?? null,
         gender: gender ?? null,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
@@ -109,11 +90,10 @@ export async function POST(req: NextRequest) {
     });
 
     const response = NextResponse.json(profile, { status: 200 });
-    // Cookie lets middleware know this user has a saved profile (avoids DB in edge)
     response.cookies.set("profile_complete", "1", {
       httpOnly: false,
       path: "/",
-      maxAge: 60 * 60 * 24 * 365, // 1 year
+      maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
     });
     return response;
@@ -123,15 +103,14 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PATCH /api/profile – partial update (only fields provided are updated)
+// PATCH /api/profile – partial update
 export async function PATCH(req: NextRequest) {
-  const { userId } = auth();
-  if (!userId) {
+  const session = await getSession();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
-
   const allowed = [
     "photoUrl", "gender", "dateOfBirth", "timeOfBirth", "birthTimeUnknown",
     "birthCity", "birthState", "birthCountry", "birthLat", "birthLng",
@@ -142,14 +121,11 @@ export async function PATCH(req: NextRequest) {
   const updateData: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) {
-      updateData[key] = key === "dateOfBirth" && body[key]
-        ? new Date(body[key])
-        : body[key];
+      updateData[key] = key === "dateOfBirth" && body[key] ? new Date(body[key]) : body[key];
     }
   }
 
-  // Recalculate profileComplete against merged state
-  const existing = await prisma.userProfile.findUnique({ where: { clerkUserId: userId } });
+  const existing = await prisma.userProfile.findUnique({ where: { userId: session.user.id } });
   const merged = { ...existing, ...updateData };
   updateData.profileComplete = Boolean(
     merged.gender && merged.dateOfBirth && merged.birthCity && merged.birthCountry
@@ -157,8 +133,8 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const profile = await prisma.userProfile.upsert({
-      where: { clerkUserId: userId },
-      create: { clerkUserId: userId, ...updateData },
+      where: { userId: session.user.id },
+      create: { userId: session.user.id, ...updateData },
       update: updateData,
     });
 
