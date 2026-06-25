@@ -42,8 +42,8 @@ export default function RootLayout({
         <body className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable} font-sans antialiased bg-cream text-ink`}>
           <NavRail />
           {/* Content area: offset by rail width on desktop, by mobile header on small screens */}
-          <div className="lg:ml-[280px] pt-16 lg:pt-0 min-h-screen flex flex-col">
-            <main className="flex-1">
+          <div className="lg:ml-[300px] pt-16 lg:pt-0 min-h-screen flex flex-col bg-cream">
+            <main className="flex-1 bg-cream">
               {children}
             </main>
             <Footer />

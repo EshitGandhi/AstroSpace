@@ -92,10 +92,10 @@ export default function FreeToolsPage() {
             </section>
 
             {/* Upsell to Kundli */}
-            <section className="bg-night rounded-3xl p-8 text-center text-white flex flex-col md:flex-row items-center justify-between gap-6 max-w-3xl mx-auto">
+            <section className="bg-white border border-ink/10 rounded-3xl p-8 text-center flex flex-col md:flex-row items-center justify-between gap-6 max-w-3xl mx-auto shadow-sm">
               <div className="text-left space-y-2">
-                <h3 className="text-xl font-heading font-bold text-gold">Want the full picture?</h3>
-                <p className="text-sm text-white/80">Your Sun sign is just 10% of your astrological identity. Generate your complete birth chart to find your Moon sign and ascendant.</p>
+                <h3 className="text-xl font-heading font-bold text-ink">Want the full picture?</h3>
+                <p className="text-sm text-ink-muted">Your Sun sign is just 10% of your astrological identity. Generate your complete birth chart to find your Moon sign and ascendant.</p>
               </div>
               <Link href="/kundli" className="shrink-0 w-full md:w-auto">
                 <AnimatedButton variant="primary" size="md" className="w-full">

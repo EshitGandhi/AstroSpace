@@ -8,164 +8,194 @@ import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import {
   Home,
   User,
-  Wrench,
-  Star,
-  Calendar,
+  Briefcase,
   MessageCircle,
   Menu,
   X,
   LogIn,
 } from "lucide-react";
 
+/** Reference sidebar: 4 items, uppercase, orange rail */
 const NAV_ITEMS = [
-  { label: "Home",              href: "/",              icon: Home },
-  { label: "About",             href: "/about",         icon: User },
-  { label: "Free Tools",        href: "/tools",         icon: Wrench },
-  { label: "Kundli",            href: "/kundli",        icon: Star },
-  { label: "Consultation",      href: "/consultation",  icon: Calendar },
-  { label: "Talk to Astrologer", href: "/contact",      icon: MessageCircle },
+  { label: "HOME", href: "/", icon: Home },
+  { label: "ABOUT GURU", href: "/about", icon: User },
+  { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
+  { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
 ];
 
-export default function NavRail() {
-  const pathname = usePathname();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+const RAIL_ORANGE = "#FF6B00";
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
-
-  /* ── Shared nav list (used in both desktop rail and mobile drawer) ── */
-  const navList = (
-    <nav className="flex flex-col gap-1">
-      {NAV_ITEMS.map((item) => {
-        const active = isActive(item.href);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={() => setDrawerOpen(false)}
-            className={`
-              flex items-center gap-4 px-5 py-3 rounded-xl text-sm font-medium
-              transition-colors duration-200
-              ${active
-                ? "bg-bhagva text-white"
-                : "text-white/70 hover:bg-white/10 hover:text-white"
-              }
-            `}
-          >
-            <item.icon className="w-5 h-5 shrink-0" />
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
+function NavLink({
+  item,
+  active,
+  onNavigate,
+}: {
+  item: (typeof NAV_ITEMS)[0];
+  active: boolean;
+  onNavigate?: () => void;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-opacity ${
+        active ? "opacity-100" : "opacity-90 hover:opacity-100"
+      }`}
+    >
+      <Icon
+        className="w-7 h-7 shrink-0 text-white"
+        strokeWidth={2.25}
+        aria-hidden
+      />
+      <span className="nav-rail-label text-sm sm:text-base leading-tight">
+        {item.label}
+      </span>
+    </Link>
   );
+}
 
-  /* ── Logo + wordmark block (anchored at bottom) ── */
-  const brandBlock = (
-    <div className="flex flex-col items-center text-center gap-3">
-      <Link href="/" onClick={() => setDrawerOpen(false)}>
+function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <Link
+      href="/"
+      onClick={onNavigate}
+      className="block w-full mt-auto pt-6"
+      aria-label="AstroGuru home"
+    >
+      {/* Reference logo — guru mascot + wordmark, bottom-anchored crop */}
+      <div className="relative w-full h-[min(42vh,300px)] min-h-[200px] overflow-hidden">
         <Image
-          src="/logo.svg"
-          alt="AstroGuru Logo"
-          width={72}
-          height={72}
-          className="rounded-full"
+          src="/guru-sidebar-reference.png"
+          alt="AstroGuru — Your Vedic Companion"
+          fill
+          sizes="300px"
+          className="object-cover object-[center_92%] scale-110 pointer-events-none select-none"
           priority
         />
-      </Link>
-      <div>
-        <span className="text-white font-heading font-bold text-lg tracking-wide">
-          Astro
-        </span>
-        <span className="text-bhagva font-heading font-bold text-lg tracking-wide">
-          Guru
-        </span>
       </div>
-      <p className="text-white/50 text-xs">Your Vedic Companion</p>
-    </div>
+    </Link>
   );
+}
 
-  /* ── Auth block ── */
-  const authBlock = (
-    <div className="flex flex-col items-center gap-3 pt-4 border-t border-white/10">
+function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <div className="flex items-center justify-center gap-3 py-3 border-t border-white/20">
       <SignedIn>
         <UserButton
           afterSignOutUrl="/"
           appearance={{
-            elements: { avatarBox: "w-9 h-9" },
+            elements: {
+              avatarBox: "w-9 h-9 ring-2 ring-white/40",
+            },
           }}
         />
       </SignedIn>
       <SignedOut>
         <Link
           href="/sign-in"
-          onClick={() => setDrawerOpen(false)}
-          className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+          onClick={onNavigate}
+          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/90 hover:text-white nav-rail-label-sm"
         >
-          <LogIn className="w-4 h-4" />
+          <LogIn className="w-4 h-4" strokeWidth={2.5} />
           Sign In
         </Link>
       </SignedOut>
     </div>
   );
+}
+
+function RailContent({
+  onNavigate,
+  className = "",
+}: {
+  onNavigate?: () => void;
+  className?: string;
+}) {
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  return (
+    <div className={`flex flex-col h-full px-5 py-8 ${className}`}>
+      <nav className="flex flex-col gap-1 pt-2" aria-label="Main navigation">
+        {NAV_ITEMS.map((item) => (
+          <NavLink
+            key={item.href}
+            item={item}
+            active={isActive(item.href)}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </nav>
+
+      <div className="flex flex-col flex-1 min-h-0">
+        <AuthBlock onNavigate={onNavigate} />
+        <BrandBlock onNavigate={onNavigate} />
+      </div>
+    </div>
+  );
+}
+
+export default function NavRail() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const closeDrawer = () => setDrawerOpen(false);
 
   return (
     <>
-      {/* ════════ Desktop rail (>= 1024px) ════════ */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[280px] z-50 flex-col bg-night px-4 py-8">
-        {/* Top: navigation */}
-        <div className="flex-1 overflow-y-auto">
-          {navList}
-        </div>
-
-        {/* Bottom: brand + auth */}
-        <div className="flex flex-col gap-6">
-          {authBlock}
-          {brandBlock}
-        </div>
+      {/* Desktop rail */}
+      <aside
+        className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col"
+        style={{ backgroundColor: RAIL_ORANGE }}
+      >
+        <RailContent />
       </aside>
 
-      {/* ════════ Mobile header bar (< 1024px) ════════ */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-night px-4 py-3">
+      {/* Mobile header */}
+      <header
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md"
+        style={{ backgroundColor: RAIL_ORANGE }}
+      >
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="AstroGuru" width={36} height={36} className="rounded-full" />
-          <span className="text-white font-heading font-bold text-base">
-            Astro<span className="text-bhagva">Guru</span>
-          </span>
+          <Image
+            src="/guru-sidebar-reference.png"
+            alt="AstroGuru"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-full object-cover object-[center_75%]"
+          />
+          <span className="nav-rail-label text-base">ASTRO GURU</span>
         </Link>
 
         <button
+          type="button"
           onClick={() => setDrawerOpen(!drawerOpen)}
-          className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+          className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
           aria-label={drawerOpen ? "Close menu" : "Open menu"}
+          aria-expanded={drawerOpen}
         >
-          {drawerOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {drawerOpen ? <X className="w-6 h-6" strokeWidth={2.5} /> : <Menu className="w-6 h-6" strokeWidth={2.5} />}
         </button>
       </header>
 
-      {/* ════════ Mobile drawer overlay ════════ */}
       {drawerOpen && (
         <div
           className="lg:hidden fixed inset-0 z-40 bg-black/50"
-          onClick={() => setDrawerOpen(false)}
+          onClick={closeDrawer}
+          aria-hidden
         />
       )}
 
-      {/* ════════ Mobile slide-out drawer ════════ */}
+      {/* Mobile drawer */}
       <aside
-        className={`
-          lg:hidden fixed top-0 left-0 bottom-0 w-[280px] z-50 bg-night
-          flex flex-col px-4 py-8 pt-20
-          transition-transform duration-300 ease-in-out
-          ${drawerOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
+        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${
+          drawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{ backgroundColor: RAIL_ORANGE }}
+        aria-hidden={!drawerOpen}
       >
-        <div className="flex-1 overflow-y-auto">
-          {navList}
-        </div>
-        <div className="flex flex-col gap-6">
-          {authBlock}
-          {brandBlock}
+        <div className="pt-16 h-full">
+          <RailContent onNavigate={closeDrawer} />
         </div>
       </aside>
     </>

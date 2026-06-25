@@ -55,10 +55,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-night py-32 px-6 text-center">
+      <section className="bg-cream-tint py-32 px-6 text-center border-t border-ink/5">
         <div className="max-w-4xl mx-auto space-y-8">
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-gold">Ready to seek guidance?</h2>
-          <p className="text-xl text-white/80">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-ink">Ready to seek guidance?</h2>
+          <p className="text-xl text-ink-muted">
             Book a consultation today and unlock the deepest secrets of your cosmic blueprint.
           </p>
           <Link href="/consultation">

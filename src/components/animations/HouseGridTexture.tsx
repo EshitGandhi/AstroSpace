@@ -42,7 +42,7 @@ export default function HouseGridTexture() {
         <motion.circle cx="400" cy="400" r="6" fill="currentColor" animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 4 }} />
       </svg>
       {/* Subtle radial gradient to fade edges */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,var(--night)_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,var(--cream)_85%)]" />
     </div>
   );
 }

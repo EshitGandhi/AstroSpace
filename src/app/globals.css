@@ -35,7 +35,32 @@ body {
   }
 }
 
-/* ── Focus rings for accessibility ── */
+/* ── Nav rail: reference-style outlined labels (orange sidebar) ── */
+@layer components {
+  .nav-rail-label {
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: var(--font-poppins), var(--font-devanagari), sans-serif;
+    -webkit-text-stroke: 1px rgba(0, 0, 0, 0.85);
+    paint-order: stroke fill;
+    text-shadow:
+      1px 1px 0 rgba(0, 0, 0, 0.9),
+      -1px -1px 0 rgba(0, 0, 0, 0.9),
+      1px -1px 0 rgba(0, 0, 0, 0.9),
+      -1px 1px 0 rgba(0, 0, 0, 0.9),
+      0 2px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  .nav-rail-label-sm {
+    -webkit-text-stroke: 0.75px rgba(0, 0, 0, 0.75);
+    text-shadow:
+      1px 1px 0 rgba(0, 0, 0, 0.8),
+      -1px -1px 0 rgba(0, 0, 0, 0.8);
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--bhagva);
   outline-offset: 2px;
@@ -46,7 +71,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--night);
+  background: var(--cream-tint);
 }
 
 ::-webkit-scrollbar-thumb {

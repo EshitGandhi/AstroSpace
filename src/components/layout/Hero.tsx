@@ -21,7 +21,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center px-6 pt-16 pb-24 bg-night text-white overflow-hidden">
+    <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center px-6 pt-16 pb-24 bg-cream text-ink overflow-hidden">
       <HouseGridTexture />
 
       <motion.div
@@ -49,7 +49,7 @@ export default function Hero() {
 
         <motion.p
           variants={itemVariants}
-          className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto"
+          className="text-lg md:text-xl text-ink-muted max-w-2xl mx-auto"
         >
           Discover profound astrological insights based on authentic Vedic principles.
           Generate your birth chart, find your sun sign, and consult expert astrologers.
@@ -65,14 +65,14 @@ export default function Hero() {
             </AnimatedButton>
           </Link>
           <Link href="/tools">
-            <AnimatedButton variant="secondary" size="lg" surface="night" className="w-full sm:w-auto">
+            <AnimatedButton variant="secondary" size="lg" surface="cream" className="w-full sm:w-auto">
               Free Rashi Check
             </AnimatedButton>
           </Link>
         </motion.div>
       </motion.div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-cream z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-cream z-10 pointer-events-none" />
     </section>
   );
 }

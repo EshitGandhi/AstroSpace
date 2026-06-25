@@ -218,7 +218,7 @@ export const SAMPLE_CHART_HOUSES: ChartHouse[] = [
 export default function KundliChart({
   houses,
   style = "north",
-  surface = "night",
+  surface = "cream",
   className = "",
 }: KundliChartProps) {
   const isNight = surface === "night";

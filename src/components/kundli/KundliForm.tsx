@@ -25,6 +25,9 @@ type KundliFormProps = {
   loading?: boolean;
 };
 
+const inputClass =
+  "w-full px-4 py-3 rounded-xl border border-ink/20 bg-cream text-ink focus:outline-none focus:border-bhagva focus:ring-1 focus:ring-bhagva transition-colors";
+
 export default function KundliForm({ onSubmit, loading = false }: KundliFormProps) {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
@@ -83,7 +86,7 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label htmlFor="kundli-name" className="block text-sm font-bold text-white">
+        <label htmlFor="kundli-name" className="block text-sm font-bold text-ink">
           Full Name
         </label>
         <input
@@ -93,13 +96,13 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
-          className="w-full px-4 py-3 rounded-xl border border-white/20 bg-night-2 text-white focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+          className={inputClass}
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label htmlFor="kundli-dob" className="block text-sm font-bold text-white">
+          <label htmlFor="kundli-dob" className="block text-sm font-bold text-ink">
             Date of Birth
           </label>
           <input
@@ -108,11 +111,11 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
             required
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-white/20 bg-night-2 text-white focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold [color-scheme:dark]"
+            className={inputClass}
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="kundli-tob" className="block text-sm font-bold text-white">
+          <label htmlFor="kundli-tob" className="block text-sm font-bold text-ink">
             Time of Birth
           </label>
           <input
@@ -121,17 +124,17 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
             required
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-white/20 bg-night-2 text-white focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold [color-scheme:dark]"
+            className={inputClass}
           />
         </div>
       </div>
 
       <div className="space-y-2 relative">
-        <label htmlFor="kundli-place" className="block text-sm font-bold text-white">
+        <label htmlFor="kundli-place" className="block text-sm font-bold text-ink">
           Place of Birth
         </label>
         <div className="relative">
-          <Search className="absolute left-4 top-3.5 w-5 h-5 text-white/50" />
+          <Search className="absolute left-4 top-3.5 w-5 h-5 text-ink-muted" />
           <input
             id="kundli-place"
             type="text"
@@ -139,14 +142,12 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
             value={cityQuery}
             onChange={(e) => handleCityChange(e.target.value)}
             placeholder="Search city (e.g. Delhi, Mumbai)"
-            className="w-full pl-12 pr-4 py-3 rounded-xl border border-white/20 bg-night-2 text-white focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+            className={`${inputClass} pl-12`}
           />
         </div>
-        {searching && (
-          <p className="text-xs text-white/50">Searching...</p>
-        )}
+        {searching && <p className="text-xs text-ink-muted">Searching...</p>}
         {suggestions.length > 0 && !selectedPlace && (
-          <ul className="absolute z-20 w-full mt-1 bg-night-2 border border-white/20 rounded-xl overflow-hidden shadow-lg">
+          <ul className="absolute z-20 w-full mt-1 bg-white border border-ink/20 rounded-xl overflow-hidden shadow-lg">
             {suggestions.map((s, i) => (
               <li key={i}>
                 <button
@@ -156,9 +157,9 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
                     setCityQuery(s.displayName);
                     setSuggestions([]);
                   }}
-                  className="w-full text-left px-4 py-3 hover:bg-white/10 text-sm text-white flex items-start gap-2"
+                  className="w-full text-left px-4 py-3 hover:bg-cream-tint text-sm text-ink flex items-start gap-2"
                 >
-                  <MapPin className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                  <MapPin className="w-4 h-4 text-bhagva shrink-0 mt-0.5" />
                   <span>{s.displayName}</span>
                 </button>
               </li>
@@ -166,7 +167,7 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
           </ul>
         )}
         {selectedPlace && (
-          <p className="text-xs text-gold flex items-center gap-1">
+          <p className="text-xs text-bhagva font-medium flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {selectedPlace.lat.toFixed(4)}°N, {selectedPlace.lng.toFixed(4)}°E
           </p>
