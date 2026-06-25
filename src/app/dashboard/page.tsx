@@ -1,5 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -8,11 +8,13 @@ import GlassCard from "@/components/ui/GlassCard";
 import Badge from "@/components/ui/Badge";
 
 export default async function Dashboard() {
-  const { userId } = auth();
+  const session = await getSession();
 
-  if (!userId) {
+  if (!session?.user?.id) {
     redirect("/sign-in");
   }
+
+  const userId = session.user.id;
 
   const bookings = await prisma.booking.findMany({
     where: { userId },
@@ -31,7 +33,7 @@ export default async function Dashboard() {
         <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4 mt-4">
           Your Cosmic Dashboard
         </h1>
-        <p className="text-xl text-ink-muted">Manage your astrological journey.</p>
+        <p className="text-xl text-ink-muted">Welcome back, {session.user.name}.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

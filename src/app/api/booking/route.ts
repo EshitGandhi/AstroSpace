@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
-    if (!userId) {
+    const session = await getSession();
+    if (!session?.user?.id) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         email,
         dateTime: new Date(dateTime),
         serviceType,
-        userId,
+        userId: session.user.id,
         astrologerId: astrologerId ?? null,
         amount: amount ?? null,
         paymentStatus: "pending",

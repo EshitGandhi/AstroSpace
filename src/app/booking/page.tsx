@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,8 +11,9 @@ import Badge from "@/components/ui/Badge";
 import { Calendar, User, Mail, CheckCircle2 } from "lucide-react";
 
 export default function BookingPage() {
-  const { isLoaded, userId } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const userId = session?.user?.id;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -55,7 +56,7 @@ export default function BookingPage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  if (!isLoaded) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="animate-spin w-8 h-8 border-4 border-bhagva border-t-transparent rounded-full" />
