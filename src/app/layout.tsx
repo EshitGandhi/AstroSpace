@@ -1,25 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Poppins, Noto_Sans_Devanagari } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-import Navbar from "@/components/layout/Navbar";
+import NavRail from "@/components/layout/NavRail";
 import Footer from "@/components/layout/Footer";
-import StarfieldBackground from "@/components/animations/StarfieldBackground";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-poppins",
+});
+const notoDevanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "600", "700"],
+  variable: "--font-devanagari",
+});
 
 export const metadata: Metadata = {
-  title: "AstroSpace | Discover Your Cosmic Path",
-  description: "A premium astrology SaaS offering deep insights, horoscopes, and professional consultations.",
+  title: "AstroGuru | Your Vedic Companion",
+  description: "Vedic astrology insights — Kundli, Rashi, daily horoscopes, and expert consultations.",
   openGraph: {
-    title: "AstroSpace | Discover Your Cosmic Path",
-    description: "A premium astrology SaaS offering deep insights, horoscopes, and professional consultations.",
+    title: "AstroGuru | Your Vedic Companion",
+    description: "Vedic astrology insights — Kundli, Rashi, daily horoscopes, and expert consultations.",
     type: "website",
-    url: "https://astrospace.com",
-    siteName: "AstroSpace",
+    url: "https://astroguru.com",
+    siteName: "AstroGuru",
   },
 };
 
@@ -31,20 +39,22 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${inter.variable} ${outfit.variable} font-sans antialiased bg-background text-foreground`}>
-          <StarfieldBackground />
-          <Navbar />
-          <main className="pt-24 min-h-screen">
-            {children}
-          </main>
-          <Footer />
+        <body className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable} font-sans antialiased bg-cream text-ink`}>
+          <NavRail />
+          {/* Content area: offset by rail width on desktop, by mobile header on small screens */}
+          <div className="lg:ml-[300px] pt-16 lg:pt-0 min-h-screen flex flex-col bg-cream">
+            <main className="flex-1 bg-cream">
+              {children}
+            </main>
+            <Footer />
+          </div>
           <Toaster 
             position="bottom-right"
             toastOptions={{
               style: {
-                background: '#151226',
-                color: '#fff',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: '#FFF8F0',
+                color: '#2E1410',
+                border: '1px solid #FCE9DA',
               },
             }}
           />
@@ -53,3 +63,4 @@ export default function RootLayout({
     </ClerkProvider>
   );
 }
+

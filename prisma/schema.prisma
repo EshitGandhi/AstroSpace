@@ -29,11 +29,16 @@ model Comment {
 }
 
 model Booking {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
-  dateTime    DateTime
-  serviceType String
-  userId      String
-  createdAt   DateTime @default(now())
+  id                 String   @id @default(cuid())
+  name               String
+  email              String
+  dateTime           DateTime
+  serviceType        String
+  userId             String
+  astrologerId       String?
+  amount             Int?
+  paymentStatus      String   @default("pending")
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  createdAt          DateTime @default(now())
 }

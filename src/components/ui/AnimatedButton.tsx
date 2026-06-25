@@ -11,6 +11,7 @@ type ButtonProps = {
   className?: string;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
+  surface?: "night" | "cream";
 };
 
 export default function AnimatedButton({ 
@@ -20,10 +21,11 @@ export default function AnimatedButton({
   size = "md", 
   className = "",
   type = "button",
-  disabled = false
+  disabled = false,
+  surface = "cream"
 }: ButtonProps) {
   
-  const baseClasses = "relative font-semibold rounded-full flex items-center justify-center transition-all overflow-hidden";
+  const baseClasses = "relative font-semibold rounded-full flex items-center justify-center transition-all overflow-hidden border";
   
   const sizeClasses = {
     sm: "px-4 py-2 text-sm",
@@ -31,10 +33,17 @@ export default function AnimatedButton({
     lg: "px-8 py-4 text-lg",
   };
 
-  const variantClasses = {
-    primary: "bg-gradient-to-r from-accent-pink to-accent-purple text-white shadow-[0_0_15px_rgba(255,0,127,0.5)] border border-transparent",
-    secondary: "bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-white/20",
-    outline: "bg-transparent text-white border border-accent-blue shadow-[0_0_10px_rgba(0,240,255,0.3)] hover:shadow-[0_0_20px_rgba(0,240,255,0.6)]",
+  const getVariantClasses = () => {
+    if (variant === "primary") {
+      return "bg-bhagva text-white border-transparent hover:bg-bhagva/90";
+    }
+    
+    // For secondary/outline
+    if (surface === "night") {
+      return "bg-transparent text-white border-white/40 hover:border-white hover:bg-white/10";
+    } else {
+      return "bg-transparent text-ink border-ink/20 hover:border-bhagva hover:text-bhagva";
+    }
   };
 
   return (
@@ -42,12 +51,12 @@ export default function AnimatedButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      whileHover={{ scale: disabled ? 1 : 1.05 }}
-      whileTap={{ scale: disabled ? 1 : 0.95 }}
+      whileHover={{ scale: disabled ? 1 : 1.02 }}
+      whileTap={{ scale: disabled ? 1 : 0.98 }}
       className={`
         ${baseClasses} 
         ${sizeClasses[size]} 
-        ${variantClasses[variant]} 
+        ${getVariantClasses()} 
         ${disabled ? "opacity-50 cursor-not-allowed" : ""} 
         ${className}
       `}
@@ -55,7 +64,7 @@ export default function AnimatedButton({
       <span className="relative z-10">{children}</span>
       {variant === "primary" && !disabled && (
         <motion.div
-          className="absolute inset-0 bg-white/20"
+          className="absolute inset-0 bg-white/10"
           initial={{ x: "-100%" }}
           whileHover={{ x: "100%" }}
           transition={{ duration: 0.5, ease: "easeInOut" }}

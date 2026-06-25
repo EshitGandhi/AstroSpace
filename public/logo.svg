@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <circle cx="60" cy="60" r="58" fill="#23121C" stroke="#E8590C" stroke-width="2"/>
+  <text x="60" y="52" text-anchor="middle" fill="#FFFFFF" font-family="system-ui,sans-serif" font-size="22" font-weight="700">Astro</text>
+  <text x="60" y="78" text-anchor="middle" fill="#E8590C" font-family="system-ui,sans-serif" font-size="22" font-weight="700">Guru</text>
+</svg>

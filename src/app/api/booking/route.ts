@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { name, email, dateTime, serviceType } = body;
+    const { name, email, dateTime, serviceType, astrologerId, amount } = body;
 
     if (!name || !email || !dateTime || !serviceType) {
       return new NextResponse("Missing fields", { status: 400 });
@@ -23,6 +23,9 @@ export async function POST(req: Request) {
         dateTime: new Date(dateTime),
         serviceType,
         userId,
+        astrologerId: astrologerId ?? null,
+        amount: amount ?? null,
+        paymentStatus: "pending",
       },
     });
 
