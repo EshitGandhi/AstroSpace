@@ -4,6 +4,7 @@ export default function SignInPage() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-6 bg-cream">
       <SignIn
+        forceRedirectUrl="/profile-setup"
         appearance={{
           elements: {
             rootBox: "mx-auto",

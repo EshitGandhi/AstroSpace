@@ -42,3 +42,28 @@ model Booking {
   razorpayPaymentId  String?
   createdAt          DateTime @default(now())
 }
+
+model UserProfile {
+  id               String    @id @default(cuid())
+  clerkUserId      String    @unique
+  photoUrl         String?
+  gender           String?
+  dateOfBirth      DateTime?
+  timeOfBirth      String?
+  birthTimeUnknown Boolean   @default(false)
+  birthCity        String?
+  birthState       String?
+  birthCountry     String?
+  birthLat         Float?
+  birthLng         Float?
+  birthTimezone    String?
+  currentCity      String?
+  currentLat       Float?
+  currentLng       Float?
+  language         String?   @default("English")
+  maritalStatus    String?
+  caste            String?
+  profileComplete  Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}

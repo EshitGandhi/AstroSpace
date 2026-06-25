@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   LogIn,
+  UserCircle2,
 } from "lucide-react";
 
 /** Reference sidebar: 4 items, uppercase, orange rail */
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { label: "ABOUT GURU", href: "/about", icon: User },
   { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
   { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
+  { label: "MY PROFILE", href: "/profile", icon: UserCircle2 },
 ];
 
 const RAIL_ORANGE = "#FF6B00";
