@@ -13,7 +13,7 @@ import { ASTROLOGERS, generateTimeSlots, type Astrologer } from "@/lib/astrologe
 import { Calendar, CheckCircle2 } from "lucide-react";
 
 export default function ConsultationPageClient() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const userId = session?.user?.id;
 

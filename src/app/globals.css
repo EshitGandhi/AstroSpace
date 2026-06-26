@@ -38,7 +38,7 @@ body {
 /* ── Nav rail: reference-style outlined labels (orange sidebar) ── */
 @layer components {
   .nav-rail-label {
-    color: #ffffff;
+    color: inherit;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;

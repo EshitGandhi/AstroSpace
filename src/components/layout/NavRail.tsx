@@ -41,12 +41,18 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-opacity ${
-        active ? "opacity-100" : "opacity-90 hover:opacity-100"
+      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-colors ${
+        active ? "text-yellow-300" : "text-white/90 hover:text-yellow-300"
       }`}
     >
-      <Icon className="w-7 h-7 shrink-0 text-white" strokeWidth={2.25} aria-hidden />
-      <span className="nav-rail-label text-sm sm:text-base leading-tight">{item.label}</span>
+      <Icon 
+        className={`w-7 h-7 shrink-0 transition-colors ${active ? "text-yellow-300" : "text-white group-hover:text-yellow-300"}`} 
+        strokeWidth={2.25} 
+        aria-hidden 
+      />
+      <span className={`nav-rail-label text-sm sm:text-base leading-tight transition-colors ${active ? "text-yellow-300" : "text-white group-hover:text-yellow-300"}`}>
+        {item.label}
+      </span>
     </Link>
   );
 }
@@ -87,16 +93,16 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {session.user.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-white text-xs font-semibold truncate nav-rail-label-sm">
+          <span className="text-white text-xs font-semibold truncate nav-rail-label-sm group-hover:text-yellow-300 transition-colors">
             {session.user.name}
           </span>
         </div>
         {/* Sign out */}
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
+          className="group flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-yellow-300 transition-colors px-1 nav-rail-label-sm"
         >
-          <LogOut className="w-4 h-4" strokeWidth={2.5} />
+          <LogOut className="w-4 h-4 text-white/80 group-hover:text-yellow-300 transition-colors" strokeWidth={2.5} />
           Sign Out
         </button>
       </div>
@@ -108,9 +114,9 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         href="/sign-in"
         onClick={onNavigate}
-        className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/90 hover:text-white nav-rail-label-sm"
+        className="group flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/90 hover:text-yellow-300 transition-colors nav-rail-label-sm"
       >
-        <LogIn className="w-4 h-4" strokeWidth={2.5} />
+        <LogIn className="w-4 h-4 text-white/90 group-hover:text-yellow-300 transition-colors" strokeWidth={2.5} />
         Sign In
       </Link>
     </div>
@@ -157,7 +163,7 @@ export default function NavRail() {
             height={40}
             className="h-10 w-10 rounded-full object-cover object-[center_75%]"
           />
-          <span className="nav-rail-label text-base">ASTRO GURU</span>
+          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
         </Link>
         <button
           type="button"
@@ -176,9 +182,8 @@ export default function NavRail() {
 
       {/* Mobile drawer */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${
-          drawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${drawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         style={{ backgroundColor: RAIL_ORANGE }}
         aria-hidden={!drawerOpen}
       >
