@@ -13,7 +13,7 @@ import { ASTROLOGERS, generateTimeSlots, type Astrologer } from "@/lib/astrologe
 import { Calendar, CheckCircle2 } from "lucide-react";
 
 export default function ConsultationPageClient() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const userId = session?.user?.id;
 
@@ -64,7 +64,7 @@ export default function ConsultationPageClient() {
     }
   };
 
-  if (!isLoaded) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="animate-spin w-8 h-8 border-4 border-bhagva border-t-transparent rounded-full" />

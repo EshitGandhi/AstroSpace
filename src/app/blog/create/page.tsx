@@ -31,7 +31,7 @@ export default function CreateBlog() {
     );
   }
 
-  if (status !== "loading" && !userId) {
+  if (!userId) {
     router.push("/sign-in");
     return null;
   }

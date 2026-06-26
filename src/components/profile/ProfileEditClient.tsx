@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 /* ─── Types ─── */
-type EditableProfile = Omit<UserProfile, "id" | "clerkUserId" | "createdAt" | "updatedAt" | "profileComplete"> & {
+type EditableProfile = Omit<UserProfile, "id" | "userId" | "createdAt" | "updatedAt" | "profileComplete" | "dateOfBirth"> & {
   dateOfBirth: string; // ISO string for input
 };
 
@@ -429,7 +429,7 @@ export default function ProfileEditClient({ profile, clerkName, clerkEmail, cler
             {editing.place ? (
               <div className="space-y-4">
                 <LocationSearch id="editBirthPlace" label="Birth City" placeholder="Search city…"
-                  value={form.birthCity} required onSelect={handleBirthLocation} />
+                  value={form.birthCity ?? ""} required onSelect={handleBirthLocation} />
                 <AnimatePresence>
                   {form.birthCity && form.birthCountry && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-3 gap-2">
@@ -483,7 +483,7 @@ export default function ProfileEditClient({ profile, clerkName, clerkEmail, cler
                 <div>
                   <label className="text-xs font-semibold text-ink mb-1.5 block">Current City <span className="text-ink-muted font-normal">(optional)</span></label>
                   <LocationSearch id="editCurrentCity" label="" placeholder="Search city…"
-                    value={form.currentCity} onSelect={handleCurrentLocation} />
+                    value={form.currentCity ?? ""} onSelect={handleCurrentLocation} />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-ink mb-1.5 block">Language Preference</label>
