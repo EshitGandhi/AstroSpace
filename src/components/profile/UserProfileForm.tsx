@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
-  User, Calendar, MapPin, Globe, Heart, ChevronDown,
+  User, Calendar, Clock, MapPin, Globe, Heart, ChevronDown,
   CheckCircle2, AlertCircle, Info, Loader2, Star,
 } from "lucide-react";
 import PhotoUpload from "./PhotoUpload";
@@ -63,6 +63,15 @@ const MARITAL_STATUSES = [
 const CASTES = [
   "Brahmin", "Rajput", "Vaishya", "Jat", "Kayastha",
   "SC", "ST", "OBC", "Other", "Prefer not to say",
+];
+
+const SECTIONS = [
+  { id: "photo", label: "Photo", icon: User },
+  { id: "basic", label: "Basic", icon: User },
+  { id: "birth", label: "Birth", icon: Calendar },
+  { id: "place", label: "Place", icon: MapPin },
+  { id: "current", label: "Current", icon: Globe },
+  { id: "personal", label: "Personal", icon: Heart },
 ];
 
 /* ─────────────────────────────────────────────
@@ -287,6 +296,9 @@ export default function UserProfileForm({ initialData }: UserProfileFormProps) {
       setSubmitting(false);
     }
   };
+
+  // Today as max date
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6 pb-32 lg:pb-12">

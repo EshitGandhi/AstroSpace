@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, X } from "lucide-react";
+import { MapPin, ChevronDown, Search, X } from "lucide-react";
 
 export interface LocationResult {
   name: string;
