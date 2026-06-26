@@ -41,10 +41,13 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-opacity ${active ? "opacity-100" : "opacity-90 hover:opacity-100"
-        }`}
+      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-colors ${
+        active 
+          ? "text-yellow-400 opacity-100" 
+          : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
+      }`}
     >
-      <Icon className="w-7 h-7 shrink-0 text-white" strokeWidth={2.25} aria-hidden />
+      <Icon className="w-7 h-7 shrink-0" strokeWidth={2.25} aria-hidden />
       <span className="nav-rail-label text-sm sm:text-base leading-tight">{item.label}</span>
     </Link>
   );
@@ -156,7 +159,7 @@ export default function NavRail() {
             height={40}
             className="h-10 w-10 rounded-full object-cover object-[center_75%]"
           />
-          <span className="nav-rail-label text-base">ASTRO GURU</span>
+          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
         </Link>
         <button
           type="button"
