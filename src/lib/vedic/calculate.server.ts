@@ -2,6 +2,7 @@ import "server-only";
 
 import { getKundli, Observer } from "@ishubhamx/panchangam-js";
 import type { ChartHouse } from "./types";
+import { buildDashaTimeline, getCurrentDashaFromTimeline } from "./dasha/timeline";
 import { parseBirthDateTime } from "./timezone";
 import { toVedicRashi, rashiFromIndex } from "./rashi-map";
 import type { KundliInput, KundliResult, PlanetInfo } from "./types";
@@ -42,6 +43,12 @@ export function calculateKundli(input: KundliInput): KundliResult {
   const moon = kundli.planets.Moon;
   const sun = kundli.planets.Sun;
 
+  const dashaTimeline = buildDashaTimeline({
+    birthNakshatra: kundli.dasha.birthNakshatra,
+    fullCycle: kundli.dasha.fullCycle,
+  });
+  const currentDasha = getCurrentDashaFromTimeline(dashaTimeline);
+
   return {
     name,
     ascendant: toVedicRashi(kundli.ascendant.rashiName),
@@ -51,10 +58,11 @@ export function calculateKundli(input: KundliInput): KundliResult {
     nakshatra: kundli.dasha.birthNakshatra,
     nakshatraPada: kundli.dasha.nakshatraPada,
     dasha: {
-      currentLord: kundli.dasha.currentMahadasha.planet,
-      balanceYears: parseFloat(kundli.dasha.dashaBalance) || 0,
-      antardashaLord: kundli.dasha.currentAntardasha?.planet,
+      currentLord: currentDasha.currentLord,
+      balanceYears: currentDasha.balanceYears,
+      antardashaLord: currentDasha.antardashaLord,
     },
+    dashaTimeline,
     planets,
     houses,
     birthDetails: { date, time, lat, lng, timezone },

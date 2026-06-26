@@ -10,6 +10,7 @@ import {
   User,
   Briefcase,
   MessageCircle,
+  Moon,
   Menu,
   X,
   LogIn,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { label: "HOME", href: "/", icon: Home },
   { label: "ABOUT GURU", href: "/about", icon: User },
   { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
+  { label: "KUNDLI", href: "/kundli", icon: Moon },
   { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
   { label: "MY PROFILE", href: "/profile", icon: UserCircle2 },
 ];
@@ -143,12 +145,12 @@ export default function NavRail() {
   return (
     <>
       {/* Desktop rail */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col" style={{ backgroundColor: RAIL_ORANGE }}>
+      <aside className="no-print hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col" style={{ backgroundColor: RAIL_ORANGE }}>
         <RailContent />
       </aside>
 
       {/* Mobile header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md" style={{ backgroundColor: RAIL_ORANGE }}>
+      <header className="no-print lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md" style={{ backgroundColor: RAIL_ORANGE }}>
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/guru-sidebar-reference.png"
@@ -171,12 +173,12 @@ export default function NavRail() {
       </header>
 
       {drawerOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={closeDrawer} aria-hidden />
+        <div className="no-print lg:hidden fixed inset-0 z-40 bg-black/50" onClick={closeDrawer} aria-hidden />
       )}
 
       {/* Mobile drawer */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${
+        className={`no-print lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${
           drawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ backgroundColor: RAIL_ORANGE }}

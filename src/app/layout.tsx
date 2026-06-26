@@ -41,7 +41,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable} font-sans antialiased bg-cream text-ink`}>
         <SessionProvider>
           <NavRail />
-          <div className="lg:ml-[300px] pt-16 lg:pt-0 min-h-screen flex flex-col bg-cream">
+          <div className="lg:ml-[300px] pt-16 lg:pt-0 min-h-screen flex flex-col bg-cream app-main-shell">
             <main className="flex-1 bg-cream">
               {children}
             </main>
@@ -49,6 +49,7 @@ export default function RootLayout({
           </div>
           <Toaster
             position="bottom-right"
+            containerClassName="no-print"
             toastOptions={{
               style: {
                 background: "#FFF8F0",

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { calculateKundli } from "../calculate.server";
+import { assertDashaTimelineIntegrity, assertDashaSummaryMatchesTimeline } from "./dasha-assertions";
 
 describe("reference birth charts (@ishubhamx/panchangam-js)", () => {
   it("Delhi — 15 May 1990, 10:30 IST", () => {
@@ -21,6 +22,9 @@ describe("reference birth charts (@ishubhamx/panchangam-js)", () => {
 
     const ketu = result.planets.find((p) => p.planet === "Ketu");
     expect(ketu?.house).toBe(1);
+
+    assertDashaTimelineIntegrity(result.dashaTimeline);
+    assertDashaSummaryMatchesTimeline(result);
   });
 
   it("Mumbai — 20 Aug 1985, 06:15 IST", () => {
@@ -37,6 +41,9 @@ describe("reference birth charts (@ishubhamx/panchangam-js)", () => {
     expect(result.sunRashi).toBe("Simha");
     expect(result.houses).toHaveLength(12);
     expect(result.houses.every((h) => h.house >= 1 && h.house <= 12)).toBe(true);
+
+    assertDashaTimelineIntegrity(result.dashaTimeline);
+    assertDashaSummaryMatchesTimeline(result);
   });
 
   it("Chennai — 1 Jan 2000, 00:30 IST", () => {
@@ -52,5 +59,8 @@ describe("reference birth charts (@ishubhamx/panchangam-js)", () => {
     expect(result.planets.find((p) => p.planet === "Sun")?.sign).toBe("Dhanu");
     expect(result.dasha.currentLord).toBeTruthy();
     expect(result.houses.reduce((sum, h) => sum + h.planets.length, 0)).toBeGreaterThan(0);
+
+    assertDashaTimelineIntegrity(result.dashaTimeline);
+    assertDashaSummaryMatchesTimeline(result);
   });
 });

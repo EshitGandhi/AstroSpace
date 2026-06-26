@@ -12,6 +12,17 @@ type GeocodeResult = {
   displayName: string;
 };
 
+export type KundliFormInitialValues = {
+  name?: string;
+  date?: string;
+  time?: string;
+  placeName?: string;
+  lat?: number;
+  lng?: number;
+  timezone?: string;
+  birthTimeUnknown?: boolean;
+};
+
 type KundliFormProps = {
   onSubmit: (data: {
     name: string;
@@ -23,12 +34,13 @@ type KundliFormProps = {
     placeName: string;
   }) => void;
   loading?: boolean;
+  initialValues?: KundliFormInitialValues;
 };
 
 const inputClass =
   "w-full px-4 py-3 rounded-xl border border-ink/20 bg-cream text-ink focus:outline-none focus:border-bhagva focus:ring-1 focus:ring-bhagva transition-colors";
 
-export default function KundliForm({ onSubmit, loading = false }: KundliFormProps) {
+export default function KundliForm({ onSubmit, loading = false, initialValues }: KundliFormProps) {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -36,8 +48,10 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<GeocodeResult | null>(null);
   const [searching, setSearching] = useState(false);
+  const [birthTimeUnknown, setBirthTimeUnknown] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const appliedInitialRef = useRef(false);
 
   const searchCity = useCallback(async (query: string) => {
     if (query.length < 2) {
@@ -68,6 +82,29 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!initialValues || appliedInitialRef.current) return;
+    appliedInitialRef.current = true;
+
+    if (initialValues.name) setName(initialValues.name);
+    if (initialValues.date) setDate(initialValues.date);
+    if (initialValues.time) setTime(initialValues.time.slice(0, 5));
+    if (initialValues.birthTimeUnknown) setBirthTimeUnknown(true);
+
+    if (initialValues.placeName) setCityQuery(initialValues.placeName);
+
+    const { lat, lng, timezone, placeName } = initialValues;
+    if (lat != null && lng != null && placeName) {
+      setSelectedPlace({
+        name: placeName.split(",")[0]?.trim() ?? placeName,
+        lat,
+        lng,
+        timezone: timezone ?? "Asia/Kolkata",
+        displayName: placeName,
+      });
+    }
+  }, [initialValues]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +163,15 @@ export default function KundliForm({ onSubmit, loading = false }: KundliFormProp
             onChange={(e) => setTime(e.target.value)}
             className={inputClass}
           />
+          {birthTimeUnknown && !time && (
+            <p className="text-xs text-ink-muted">
+              Birth time not set in your profile — enter a time here for an accurate chart, or update it in{" "}
+              <a href="/profile" className="text-bhagva hover:underline font-medium">
+                My Profile
+              </a>
+              .
+            </p>
+          )}
         </div>
       </div>
 

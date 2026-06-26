@@ -21,6 +21,23 @@ export type KundliInput = {
   timezone: string;
 };
 
+export type DashaPeriod = {
+  lord: string;
+  start: string;
+  end: string;
+  isCurrent?: boolean;
+};
+
+export type MahadashaPeriod = DashaPeriod & {
+  antardashas: DashaPeriod[];
+};
+
+export type DashaTimeline = {
+  birthNakshatra: string;
+  birthNakshatraLord: string;
+  mahadashas: MahadashaPeriod[];
+};
+
 export type KundliResult = {
   name?: string;
   ascendant: string;
@@ -34,6 +51,7 @@ export type KundliResult = {
     balanceYears: number;
     antardashaLord?: string;
   };
+  dashaTimeline: DashaTimeline;
   planets: PlanetInfo[];
   houses: ChartHouse[];
   birthDetails: {

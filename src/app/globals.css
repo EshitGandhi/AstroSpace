@@ -83,3 +83,73 @@ body {
   background: var(--gold);
 }
 
+/* ── Kundli print / save as PDF ── */
+@media print {
+  body {
+    background: white !important;
+    color: var(--ink) !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .app-main-shell {
+    margin-left: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .kundli-page {
+    padding: 0 !important;
+    background: white !important;
+    min-height: auto !important;
+  }
+
+  .kundli-print-content {
+    break-inside: avoid;
+  }
+
+  .kundli-print-content .grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.25rem !important;
+    align-items: start !important;
+  }
+
+  .kundli-print-title {
+    margin-bottom: 1rem !important;
+    font-size: 1.25rem !important;
+  }
+
+  .kundli-print-footer {
+    display: block !important;
+    margin-top: 1rem !important;
+    padding-top: 0.75rem !important;
+    border-top: 1px solid #ddd !important;
+    font-size: 0.75rem !important;
+    color: #666 !important;
+  }
+
+  .dasha-timeline {
+    break-inside: avoid;
+    margin-top: 1rem !important;
+  }
+
+  .dasha-timeline .dasha-antardashas.hidden {
+    display: none !important;
+  }
+
+  .dasha-timeline .dasha-is-current .dasha-antardashas {
+    display: block !important;
+  }
+
+  .hidden.print\:block {
+    display: block !important;
+  }
+}
+
+@media print and (max-width: 768px) {
+  .kundli-print-content .grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -5,9 +5,10 @@ import type { KundliResult } from "@/lib/vedic/types";
 type KundliDetailsPanelProps = {
   result: KundliResult;
   placeName?: string;
+  onViewTimeline?: () => void;
 };
 
-export default function KundliDetailsPanel({ result, placeName }: KundliDetailsPanelProps) {
+export default function KundliDetailsPanel({ result, placeName, onViewTimeline }: KundliDetailsPanelProps) {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -40,6 +41,15 @@ export default function KundliDetailsPanel({ result, placeName }: KundliDetailsP
             </>
           )}
         </p>
+        {onViewTimeline && (
+          <button
+            type="button"
+            onClick={onViewTimeline}
+            className="no-print mt-3 text-sm font-medium text-bhagva hover:underline"
+          >
+            View full dasha timeline →
+          </button>
+        )}
         {placeName && (
           <p className="text-ink-muted text-sm mt-2">Birth place: {placeName}</p>
         )}
