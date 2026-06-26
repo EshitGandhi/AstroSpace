@@ -7,15 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ASTROLOGER
+  ADMIN
+}
+
+enum AstrologerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
 // ── Auth ──────────────────────────────────────────
 model User {
   id        String      @id @default(cuid())
   name      String
   email     String      @unique
   password  String
+  mobile    String?
+  role      Role        @default(USER)
   createdAt DateTime    @default(now())
 
-  profile   UserProfile?
+  profile           UserProfile?
+  astrologerProfile AstrologerProfile?
   bookings  Booking[]
   blogs     Blog[]
 }
@@ -86,6 +102,37 @@ model UserProfile {
   profileComplete  Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Astrologer Profile ───────────────────────────
+model AstrologerProfile {
+  id                 String           @id @default(cuid())
+  userId             String           @unique
+  profileImage       String?
+  displayName        String?
+  experience         Int?
+  bio                String?
+  expertise          String[]
+  languages          String[]
+  aadhaarNumber      String?
+  panNumber          String?
+  chatPrice          Int?
+  callPrice          Int?
+  videoCallPrice     Int?
+  workingDays        String[]
+  timeSlots          String[]
+  availability       Json?
+  pricingPackages    Json?
+  website            String?
+  instagram          String?
+  facebook           String?
+  youtube            String?
+  verificationStatus AstrologerStatus @default(PENDING)
+  profileCompletion  Int              @default(0)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
