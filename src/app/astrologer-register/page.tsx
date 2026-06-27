@@ -5,11 +5,11 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Star, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Phone } from "lucide-react";
 
-export default function SignUpPage() {
+export default function AstrologerRegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ name: "", email: "", mobile: "", password: "", confirm: "", terms: false });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,6 +32,10 @@ export default function SignUpPage() {
     e.preventDefault();
     setError("");
 
+    if (!form.terms) {
+      setError("You must accept the terms and conditions.");
+      return;
+    }
     if (form.password !== form.confirm) {
       setError("Passwords do not match.");
       return;
@@ -40,15 +44,19 @@ export default function SignUpPage() {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (!form.mobile) {
+      setError("Mobile number is required.");
+      return;
+    }
 
     setLoading(true);
 
     try {
       // Register
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/auth/register-astrologer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
+        body: JSON.stringify({ name: form.name, email: form.email, mobile: form.mobile, password: form.password }),
       });
 
       const data = await res.json();
@@ -71,7 +79,7 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push("/profile-setup");
+      router.push("/pandit-dashboard");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -92,17 +100,17 @@ export default function SignUpPage() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative w-full max-w-md"
+        className="relative w-full max-w-md my-8"
       >
         <div className="bg-white rounded-3xl shadow-xl border border-ink/5 overflow-hidden">
           {/* Header strip */}
           <div className="bg-gradient-to-r from-night to-night-2 px-8 py-6">
             <div className="flex items-center gap-2 mb-3">
               <Star className="w-5 h-5 text-gold fill-gold" />
-              <span className="text-white font-bold font-heading text-lg">AstroGuru</span>
+              <span className="text-white font-bold font-heading text-lg">AstroGuru Partner</span>
             </div>
-            <h1 className="text-2xl font-extrabold text-white font-heading">Begin your journey</h1>
-            <p className="text-white/60 text-sm mt-1">Create your free account</p>
+            <h1 className="text-2xl font-extrabold text-white font-heading">Apply as an Astrologer</h1>
+            <p className="text-white/60 text-sm mt-1">Join our network of spiritual guides</p>
           </div>
 
           <form onSubmit={handleSubmit} className="px-8 py-7 space-y-4">
@@ -138,6 +146,19 @@ export default function SignUpPage() {
                 <input id="reg-email" type="email" required autoComplete="email"
                   value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-ink/10 bg-cream/60 text-sm text-ink placeholder:text-ink-muted/60 outline-none focus:border-bhagva/60 focus:ring-2 focus:ring-bhagva/20 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Mobile */}
+            <div>
+              <label htmlFor="mobile" className="block text-sm font-semibold text-ink mb-1.5">Mobile Number</label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
+                <input id="mobile" type="tel" required autoComplete="tel"
+                  value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+                  placeholder="+91 98765 43210"
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-ink/10 bg-cream/60 text-sm text-ink placeholder:text-ink-muted/60 outline-none focus:border-bhagva/60 focus:ring-2 focus:ring-bhagva/20 transition-all"
                 />
               </div>
@@ -187,28 +208,43 @@ export default function SignUpPage() {
               </div>
             </div>
 
+            {/* Terms and Conditions */}
+            <div className="flex items-start gap-3 mt-4">
+              <input
+                id="terms"
+                type="checkbox"
+                required
+                checked={form.terms}
+                onChange={(e) => setForm({ ...form, terms: e.target.checked })}
+                className="mt-1 w-4 h-4 text-bhagva bg-cream/60 border-ink/20 rounded focus:ring-bhagva/20"
+              />
+              <label htmlFor="terms" className="text-sm text-ink-muted">
+                I agree to the <Link href="/terms" className="text-bhagva hover:underline">Terms & Conditions</Link> and acknowledge the Privacy Policy.
+              </label>
+            </div>
+
             {/* Submit */}
             <motion.button type="submit" disabled={loading}
               whileHover={{ scale: loading ? 1 : 1.02 }}
               whileTap={{ scale: loading ? 1 : 0.97 }}
-              className="relative w-full py-3.5 rounded-xl bg-bhagva text-white font-bold text-sm overflow-hidden shadow-lg shadow-bhagva/25 hover:shadow-bhagva/40 transition-shadow disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+              className="relative w-full py-3.5 rounded-xl bg-bhagva text-white font-bold text-sm overflow-hidden shadow-lg shadow-bhagva/25 hover:shadow-bhagva/40 transition-shadow disabled:opacity-70 disabled:cursor-not-allowed mt-4"
             >
               {!loading && (
                 <motion.div className="absolute inset-0 bg-white/10" initial={{ x: "-100%" }} whileHover={{ x: "100%" }} transition={{ duration: 0.5 }} />
               )}
               <span className="relative z-10 flex items-center justify-center gap-2">
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating account…</> : "Create Account"}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting Application…</> : "Apply Now"}
               </span>
             </motion.button>
 
-            <div className="text-center space-y-3 mt-2">
+            <div className="text-center space-y-3 mt-4">
               <p className="text-sm text-ink-muted">
-                Already have an account?{" "}
+                Already have a partner account?{" "}
                 <Link href="/sign-in" className="text-bhagva font-semibold hover:underline">Sign in</Link>
               </p>
               <div className="h-px bg-ink/10 w-full" />
-              <Link href="/astrologer-register" className="inline-block text-sm text-night font-bold hover:text-bhagva transition-colors">
-                Register as Astrologer &rarr;
+              <Link href="/sign-up" className="inline-block text-sm text-night font-bold hover:text-bhagva transition-colors">
+                Register as User &rarr;
               </Link>
             </div>
           </form>

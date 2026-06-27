@@ -7,15 +7,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ASTROLOGER
+  ADMIN
+}
+
+enum AstrologerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ExpertiseEnum {
+  ASTROLOGERS        @map("Astrologers")
+  TAROT_READERS      @map("Tarot Readers")
+  NUMEROLOGISTS      @map("Numerologists")
+  VASTU_CONSULTANTS  @map("Vastu Consultants")
+  REIKI_HEALERS      @map("Reiki Healers")
+  PALMISTS           @map("Palmists")
+  PSYCHIC_READERS    @map("Psychic Readers")
+  SPIRITUAL_HEALERS  @map("Spiritual Healers")
+  GEMSTONE_EXPERTS   @map("Gemstone Experts")
+  LAL_KITAB_EXPERTS  @map("Lal Kitab Experts")
+  FACE_READERS       @map("Face Readers")
+  AURA_READERS       @map("Aura Readers")
+  PRANIC_HEALERS     @map("Pranic Healers")
+  NADI_ASTROLOGERS   @map("Nadi Astrologers")
+  CRYSTAL_HEALERS    @map("Crystal Healers")
+  LIFE_COACHES       @map("Life Coaches")
+  MEDITATION_COACHES @map("Meditation Coaches")
+  PANDITS            @map("Pandits (for Puja Booking)")
+  DREAM_ANALYSTS     @map("Dream Analysts")
+}
+
+enum LanguageEnum {
+  HINDI      @map("Hindi")
+  ENGLISH    @map("English")
+  TAMIL      @map("Tamil")
+  TELUGU     @map("Telugu")
+  MARATHI    @map("Marathi")
+  BENGALI    @map("Bengali")
+  GUJARATI   @map("Gujarati")
+  KANNADA    @map("Kannada")
+  MALAYALAM  @map("Malayalam")
+  PUNJABI    @map("Punjabi")
+  ODIA       @map("Odia")
+}
+
 // ── Auth ──────────────────────────────────────────
 model User {
   id        String      @id @default(cuid())
   name      String
   email     String      @unique
   password  String
+  mobile    String?
+  role      Role        @default(USER)
   createdAt DateTime    @default(now())
 
-  profile   UserProfile?
+  profile           UserProfile?
+  astrologerProfile AstrologerProfile?
   bookings  Booking[]
   blogs     Blog[]
 }
@@ -86,6 +138,37 @@ model UserProfile {
   profileComplete  Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ── Astrologer Profile ───────────────────────────
+model AstrologerProfile {
+  id                 String           @id @default(cuid())
+  userId             String           @unique
+  profileImage       String?
+  displayName        String?
+  experience         Int?
+  bio                String?
+  expertise          ExpertiseEnum[]
+  languages          LanguageEnum[]
+  aadhaarNumber      String?
+  panNumber          String?
+  chatPrice          Int?
+  callPrice          Int?
+  videoCallPrice     Int?
+  workingDays        String[]
+  timeSlots          String[]
+  availability       Json?
+  pricingPackages    Json?
+  website            String?
+  instagram          String?
+  facebook           String?
+  youtube            String?
+  verificationStatus AstrologerStatus @default(PENDING)
+  profileCompletion  Int              @default(0)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
