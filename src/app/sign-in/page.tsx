@@ -149,13 +149,17 @@ export default function SignInPage() {
             </motion.button>
 
             {/* Footer links */}
-            <div className="text-center pt-1">
+            <div className="text-center pt-1 space-y-3">
               <p className="text-sm text-ink-muted">
                 Don&apos;t have an account?{" "}
                 <Link href="/sign-up" className="text-bhagva font-semibold hover:underline">
                   Create one
                 </Link>
               </p>
+              <div className="h-px bg-ink/10 w-full" />
+              <Link href="/astrologer-register" className="inline-block text-sm text-night font-bold hover:text-bhagva transition-colors">
+                Register as Astrologer &rarr;
+              </Link>
             </div>
           </form>
         </div>

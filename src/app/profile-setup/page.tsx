@@ -23,15 +23,6 @@ export default async function ProfileSetupPage() {
     where: { userId: session.user.id },
   });
 
-  if (existingProfile?.profileComplete) {
-    cookies().set("profile_complete", "1", {
-      httpOnly: false,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
-  }
-
   const totalSteps = 6;
   const completedSteps = existingProfile
     ? [

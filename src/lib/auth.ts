@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
         const passwordMatch = await compare(credentials.password, user.password);
         if (!passwordMatch) return null;
 
-        return { id: user.id, name: user.name, email: user.email };
+        return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
     }),
   ],
@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.role = user.role;
       }
       return token;
     },
@@ -50,6 +51,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
+        session.user.role = token.role as string;
       }
       return session;
     },
