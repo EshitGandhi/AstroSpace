@@ -3,8 +3,7 @@ import { Inter, Poppins, Noto_Sans_Devanagari } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-import NavRail from "@/components/layout/NavRail";
-import Footer from "@/components/layout/Footer";
+import AppShell from "@/components/layout/AppShell";
 import SessionProvider from "@/components/providers/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -40,13 +39,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${poppins.variable} ${notoDevanagari.variable} font-sans antialiased bg-cream text-ink`}>
         <SessionProvider>
-          <NavRail />
-          <div className="lg:ml-[300px] pt-16 lg:pt-0 min-h-screen flex flex-col bg-cream">
-            <main className="flex-1 bg-cream">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <AppShell>{children}</AppShell>
           <Toaster
             position="bottom-right"
             toastOptions={{
