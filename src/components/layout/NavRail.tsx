@@ -15,10 +15,12 @@ import {
   LogIn,
   UserCircle2,
   LogOut,
+  Moon,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "HOME", href: "/", icon: Home },
+  { label: "HOROSCOPE", href: "/horoscope", icon: Moon },
   { label: "ABOUT GURU", href: "/about", icon: User },
   { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
   { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
