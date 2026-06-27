@@ -1,14 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Save, Camera, User } from "lucide-react";
+import { Loader2, Save, Camera, User, ChevronDown, Check } from "lucide-react";
+
+const EXPERTISE_OPTIONS = [
+  { label: 'Astrologers', value: 'ASTROLOGERS' },
+  { label: 'Tarot Readers', value: 'TAROT_READERS' },
+  { label: 'Numerologists', value: 'NUMEROLOGISTS' },
+  { label: 'Vastu Consultants', value: 'VASTU_CONSULTANTS' },
+  { label: 'Reiki Healers', value: 'REIKI_HEALERS' },
+  { label: 'Palmists', value: 'PALMISTS' },
+  { label: 'Psychic Readers', value: 'PSYCHIC_READERS' },
+  { label: 'Spiritual Healers', value: 'SPIRITUAL_HEALERS' },
+  { label: 'Gemstone Experts', value: 'GEMSTONE_EXPERTS' },
+  { label: 'Lal Kitab Experts', value: 'LAL_KITAB_EXPERTS' },
+  { label: 'Face Readers', value: 'FACE_READERS' },
+  { label: 'Aura Readers', value: 'AURA_READERS' },
+  { label: 'Pranic Healers', value: 'PRANIC_HEALERS' },
+  { label: 'Nadi Astrologers', value: 'NADI_ASTROLOGERS' },
+  { label: 'Crystal Healers', value: 'CRYSTAL_HEALERS' },
+  { label: 'Life Coaches', value: 'LIFE_COACHES' },
+  { label: 'Meditation Coaches', value: 'MEDITATION_COACHES' },
+  { label: 'Pandits (for Puja Booking)', value: 'PANDITS' },
+  { label: 'Dream Analysts', value: 'DREAM_ANALYSTS' },
+];
+
+const LANGUAGE_OPTIONS = [
+  { label: 'Hindi', value: 'HINDI' },
+  { label: 'English', value: 'ENGLISH' },
+  { label: 'Tamil', value: 'TAMIL' },
+  { label: 'Telugu', value: 'TELUGU' },
+  { label: 'Marathi', value: 'MARATHI' },
+  { label: 'Bengali', value: 'BENGALI' },
+  { label: 'Gujarati', value: 'GUJARATI' },
+  { label: 'Kannada', value: 'KANNADA' },
+  { label: 'Malayalam', value: 'MALAYALAM' },
+  { label: 'Punjabi', value: 'PUNJABI' },
+  { label: 'Odia', value: 'ODIA' },
+];
 
 export default function ProfileForm({ profile, user }: { profile: any, user: any }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   
+  const [expertiseOpen, setExpertiseOpen] = useState(false);
+  const expertiseRef = useRef<HTMLDivElement>(null);
+  
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const languageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (expertiseRef.current && !expertiseRef.current.contains(event.target as Node)) {
+        setExpertiseOpen(false);
+      }
+      if (languageRef.current && !languageRef.current.contains(event.target as Node)) {
+        setLanguageOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const [form, setForm] = useState({
     profileImage: profile.profileImage || "",
     displayName: profile.displayName || "",
@@ -18,8 +73,8 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
     chatPrice: profile.chatPrice || "",
     callPrice: profile.callPrice || "",
     videoCallPrice: profile.videoCallPrice || "",
-    expertise: profile.expertise?.join(", ") || "",
-    languages: profile.languages?.join(", ") || "",
+    expertise: profile.expertise || [],
+    languages: profile.languages || [],
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,10 +97,22 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
     setLoading(true);
     setMessage("");
 
+    if (form.expertise.length < 1 || form.expertise.length > 3) {
+      setMessage("Please select between 1 and 3 Expertise options.");
+      setLoading(false);
+      return;
+    }
+
+    if (form.languages.length < 1 || form.languages.length > 3) {
+      setMessage("Please select between 1 and 3 Language options.");
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       ...form,
-      expertise: form.expertise.split(",").map((s: string) => s.trim()).filter(Boolean),
-      languages: form.languages.split(",").map((s: string) => s.trim()).filter(Boolean),
+      expertise: form.expertise,
+      languages: form.languages,
     };
 
     try {
@@ -139,13 +206,85 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
           <label className="block text-sm font-semibold text-ink mb-1">Bio / About Me</label>
           <textarea rows={4} value={form.bio} onChange={(e) => setForm({...form, bio: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none"></textarea>
         </div>
-        <div>
-          <label className="block text-sm font-semibold text-ink mb-1">Expertise (Comma separated)</label>
-          <input type="text" value={form.expertise} onChange={(e) => setForm({...form, expertise: e.target.value})} placeholder="e.g. Vedic, Tarot, Vastu" className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none" />
+        <div className="relative" ref={expertiseRef}>
+          <label className="block text-sm font-semibold text-ink mb-1">Expertise (Select 1 to 3)</label>
+          <div 
+            onClick={() => setExpertiseOpen(!expertiseOpen)}
+            className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none cursor-pointer flex justify-between items-center"
+          >
+            <span className="truncate pr-4">
+              {form.expertise.length > 0 
+                ? form.expertise.map((val: string) => EXPERTISE_OPTIONS.find(o => o.value === val)?.label).join(", ")
+                : "Select Expertise..."}
+            </span>
+            <ChevronDown className={`w-4 h-4 text-ink/50 transition-transform ${expertiseOpen ? "rotate-180" : ""}`} />
+          </div>
+          
+          {expertiseOpen && (
+            <div className="absolute z-[100] w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+              {EXPERTISE_OPTIONS.map((option) => (
+                <div 
+                  key={option.value}
+                  onClick={() => {
+                    const isSelected = form.expertise.includes(option.value);
+                    if (isSelected) {
+                      setForm({ ...form, expertise: form.expertise.filter((v: string) => v !== option.value) });
+                    } else {
+                      if (form.expertise.length < 3) {
+                        setForm({ ...form, expertise: [...form.expertise, option.value] });
+                      } else {
+                        setMessage("You can select up to 3 expertise options only.");
+                      }
+                    }
+                  }}
+                  className={`px-4 py-2 cursor-pointer text-sm flex justify-between items-center hover:bg-ink/5 ${form.expertise.includes(option.value) ? "bg-bhagva/5 text-bhagva font-medium" : "text-ink"}`}
+                >
+                  {option.label}
+                  {form.expertise.includes(option.value) && <Check className="w-4 h-4" />}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-semibold text-ink mb-1">Languages Spoken (Comma separated)</label>
-          <input type="text" value={form.languages} onChange={(e) => setForm({...form, languages: e.target.value})} placeholder="e.g. English, Hindi" className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none" />
+        <div className="relative" ref={languageRef}>
+          <label className="block text-sm font-semibold text-ink mb-1">Languages Spoken (Select 1 to 3)</label>
+          <div 
+            onClick={() => setLanguageOpen(!languageOpen)}
+            className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none cursor-pointer flex justify-between items-center"
+          >
+            <span className="truncate pr-4">
+              {form.languages.length > 0 
+                ? form.languages.map((val: string) => LANGUAGE_OPTIONS.find(o => o.value === val)?.label).join(", ")
+                : "Select Languages..."}
+            </span>
+            <ChevronDown className={`w-4 h-4 text-ink/50 transition-transform ${languageOpen ? "rotate-180" : ""}`} />
+          </div>
+          
+          {languageOpen && (
+            <div className="absolute z-[100] w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+              {LANGUAGE_OPTIONS.map((option) => (
+                <div 
+                  key={option.value}
+                  onClick={() => {
+                    const isSelected = form.languages.includes(option.value);
+                    if (isSelected) {
+                      setForm({ ...form, languages: form.languages.filter((v: string) => v !== option.value) });
+                    } else {
+                      if (form.languages.length < 3) {
+                        setForm({ ...form, languages: [...form.languages, option.value] });
+                      } else {
+                        setMessage("You can select up to 3 language options only.");
+                      }
+                    }
+                  }}
+                  className={`px-4 py-2 cursor-pointer text-sm flex justify-between items-center hover:bg-ink/5 ${form.languages.includes(option.value) ? "bg-bhagva/5 text-bhagva font-medium" : "text-ink"}`}
+                >
+                  {option.label}
+                  {form.languages.includes(option.value) && <Check className="w-4 h-4" />}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div>
           <label className="block text-sm font-semibold text-ink mb-1">Aadhaar Number</label>
