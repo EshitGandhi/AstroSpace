@@ -70,9 +70,6 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
     experience: profile.experience || "",
     bio: profile.bio || "",
     aadhaarNumber: profile.aadhaarNumber || "",
-    chatPrice: profile.chatPrice || "",
-    callPrice: profile.callPrice || "",
-    videoCallPrice: profile.videoCallPrice || "",
     expertise: profile.expertise || [],
     languages: profile.languages || [],
   });
@@ -289,24 +286,6 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
         <div>
           <label className="block text-sm font-semibold text-ink mb-1">Aadhaar Number</label>
           <input type="text" value={form.aadhaarNumber} onChange={(e) => setForm({...form, aadhaarNumber: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none" />
-        </div>
-      </div>
-
-      <div className="h-px bg-ink/10" />
-
-      <h3 className="font-bold font-heading text-lg">Consultation Pricing (₹)</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="block text-sm font-semibold text-ink mb-1">Chat Price / Min</label>
-          <input type="number" value={form.chatPrice} onChange={(e) => setForm({...form, chatPrice: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none" />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-ink mb-1">Call Price / Min</label>
-          <input type="number" value={form.callPrice} onChange={(e) => setForm({...form, callPrice: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none" />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-ink mb-1">Video Call Price / Min</label>
-          <input type="number" value={form.videoCallPrice} onChange={(e) => setForm({...form, videoCallPrice: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-ink/10 bg-white text-sm focus:ring-2 focus:ring-bhagva/20 focus:border-bhagva/60 outline-none" />
         </div>
       </div>
 

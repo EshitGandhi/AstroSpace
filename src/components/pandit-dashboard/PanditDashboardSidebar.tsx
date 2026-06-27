@@ -21,6 +21,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 const RAIL_ORANGE = "#FF6B00";
+const LOGO_SRC = "/astroguru-logo.png";
 
 const NAV_ITEMS: { name: string; href: string; icon: LucideIcon }[] = [
   { name: "Dashboard", href: "/pandit-dashboard", icon: LayoutDashboard },
@@ -59,21 +60,21 @@ function NavLink({
   );
 }
 
-function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
+function LogoBlock({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <Link
       href="/pandit-dashboard"
       onClick={onNavigate}
-      className="block w-full mt-auto pt-6"
+      className="block w-full mt-4 pt-4"
       aria-label="Pandit dashboard home"
     >
-      <div className="relative w-full h-[min(42vh,300px)] min-h-[200px] overflow-hidden">
+      <div className="relative w-full h-[min(28vh,180px)] min-h-[140px] flex items-center justify-center">
         <Image
-          src="/guru-sidebar-reference.png"
-          alt="AstroGuru — Your Vedic Companion"
-          fill
-          sizes="300px"
-          className="object-cover object-[center_92%] scale-110 pointer-events-none select-none"
+          src={LOGO_SRC}
+          alt="AstroGuru"
+          width={240}
+          height={160}
+          className="w-full h-full object-contain"
           priority
         />
       </div>
@@ -87,19 +88,19 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center py-3 border-t border-white/20">
-        <div className="w-7 h-7 rounded-full bg-white/20 animate-pulse" />
+        <div className="w-9 h-9 rounded-full bg-white/20 animate-pulse" />
       </div>
     );
   }
 
   if (session?.user) {
     return (
-      <div className="flex flex-col gap-2 py-3 border-t border-white/20">
-        <div className="flex items-center gap-2.5 px-1">
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+      <div className="flex flex-col gap-3 py-4 border-t border-white/20">
+        <div className="flex items-center gap-3 px-1">
+          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-base flex-shrink-0">
             {session.user.name?.charAt(0).toUpperCase()}
           </div>
-          <span className="text-white text-xs font-semibold truncate nav-rail-label-sm">
+          <span className="text-white text-sm font-semibold truncate">
             {session.user.name}
           </span>
         </div>
@@ -108,9 +109,9 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
             onNavigate?.();
             signOut({ callbackUrl: "/" });
           }}
-          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
+          className="flex items-center gap-2.5 text-sm font-semibold uppercase tracking-wide text-white/90 hover:text-white transition-colors px-1"
         >
-          <LogOut className="w-4 h-4" strokeWidth={2.5} />
+          <LogOut className="w-5 h-5" strokeWidth={2.5} />
           Logout
         </button>
       </div>
@@ -135,10 +136,9 @@ function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; 
           />
         ))}
       </nav>
-      <div className="flex flex-col flex-1 min-h-0">
-        <AuthBlock onNavigate={onNavigate} />
-        <BrandBlock onNavigate={onNavigate} />
-      </div>
+      <div className="flex-1 min-h-0" />
+      <AuthBlock onNavigate={onNavigate} />
+      <LogoBlock onNavigate={onNavigate} />
     </div>
   );
 }
@@ -162,15 +162,14 @@ export default function PanditDashboardSidebar() {
         className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md"
         style={{ backgroundColor: RAIL_ORANGE }}
       >
-        <Link href="/pandit-dashboard" className="flex items-center gap-2">
+        <Link href="/pandit-dashboard" className="flex items-center">
           <Image
-            src="/guru-sidebar-reference.png"
+            src={LOGO_SRC}
             alt="AstroGuru"
-            width={40}
+            width={140}
             height={40}
-            className="h-10 w-10 rounded-full object-cover object-[center_75%]"
+            className="h-9 w-auto object-contain"
           />
-          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
         </Link>
         <button
           type="button"
