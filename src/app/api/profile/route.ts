@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { setProfileCompleteCookie } from "@/lib/profile/cookies";
 
 // GET /api/profile
 export async function GET() {
@@ -16,12 +17,7 @@ export async function GET() {
   const response = NextResponse.json(profile ?? null);
 
   if (profile?.profileComplete) {
-    response.cookies.set("profile_complete", "1", {
-      httpOnly: false,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
+    setProfileCompleteCookie(response);
   }
 
   return response;
@@ -90,12 +86,7 @@ export async function POST(req: NextRequest) {
     });
 
     const response = NextResponse.json(profile, { status: 200 });
-    response.cookies.set("profile_complete", "1", {
-      httpOnly: false,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
+    setProfileCompleteCookie(response);
     return response;
   } catch (err) {
     console.error("Profile upsert error:", err);
@@ -140,12 +131,7 @@ export async function PATCH(req: NextRequest) {
 
     const response = NextResponse.json(profile, { status: 200 });
     if (profile.profileComplete) {
-      response.cookies.set("profile_complete", "1", {
-        httpOnly: false,
-        path: "/",
-        maxAge: 60 * 60 * 24 * 365,
-        sameSite: "lax",
-      });
+      setProfileCompleteCookie(response);
     }
     return response;
   } catch (err) {

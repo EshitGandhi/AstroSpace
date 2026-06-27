@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import UserProfileForm from "@/components/profile/UserProfileForm";
@@ -24,12 +23,7 @@ export default async function ProfileSetupPage() {
   });
 
   if (existingProfile?.profileComplete) {
-    cookies().set("profile_complete", "1", {
-      httpOnly: false,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-      sameSite: "lax",
-    });
+    redirect("/api/profile/sync-cookie");
   }
 
   const totalSteps = 6;
