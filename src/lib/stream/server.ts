@@ -20,7 +20,7 @@ export async function ensureStreamChannel(params: {
   const channelId = `consultation_${params.consultationId}`;
 
   const channel = client.channel("messaging", channelId, {
-    members: [params.userId, params.panditUserId],
+    members: Array.from(new Set([params.userId, params.panditUserId])),
     created_by_id: params.panditUserId,
   });
 
