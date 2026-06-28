@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     const maxPrice = searchParams.get("maxPrice");
     const minExperience = searchParams.get("minExperience");
     const chatNow = searchParams.get("chatNow");
+    const scheduleAvailable = searchParams.get("scheduleAvailable");
     const sort = searchParams.get("sort") || "recommended";
 
     const whereClause: Record<string, unknown> = {
@@ -37,6 +38,10 @@ export async function GET(req: Request) {
 
     if (availability === "online" || chatNow === "true") {
       whereClause.isOnline = true;
+    }
+
+    if (scheduleAvailable === "true") {
+      whereClause.status = "active";
     }
 
     if (mode === "CHAT") {

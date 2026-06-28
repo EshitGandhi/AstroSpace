@@ -5,7 +5,7 @@ import Podium from "@/components/consultation/Podium";
 import PanditCard from "@/components/consultation/PanditCard";
 import TrustStrip from "@/components/consultation/TrustStrip";
 import CustomSelect from "@/components/ui/CustomSelect";
-import { Search, Loader2, Sparkles, Telescope, RotateCcw, MessageCircle, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Loader2, Sparkles, Telescope, RotateCcw, MessageCircle, ArrowDown, ChevronLeft, ChevronRight, Zap, Calendar } from "lucide-react";
 
 export default function ConsultPage() {
   const [pandits, setPandits] = useState<any[]>([]);
@@ -22,6 +22,7 @@ export default function ConsultPage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [minExperience, setMinExperience] = useState("");
   const [chatNow, setChatNow] = useState("");
+  const [sessionType, setSessionType] = useState<"" | "instant" | "scheduled">("");
   const [sort, setSort] = useState("recommended");
 
   const resetFilters = () => {
@@ -34,7 +35,22 @@ export default function ConsultPage() {
     setMaxPrice("");
     setMinExperience("");
     setChatNow("");
+    setSessionType("");
     setSort("recommended");
+  };
+
+  const handleSessionType = (type: "" | "instant" | "scheduled") => {
+    setSessionType(type);
+    if (type === "instant") {
+      setChatNow("true");
+      setAvailability("online");
+    } else if (type === "scheduled") {
+      setChatNow("");
+      setAvailability("");
+    } else {
+      setChatNow("");
+      setAvailability("");
+    }
   };
 
   const scrollLeft = () => {
@@ -63,6 +79,7 @@ export default function ConsultPage() {
         if (maxPrice) queryParams.append("maxPrice", maxPrice);
         if (minExperience) queryParams.append("minExperience", minExperience);
         if (chatNow) queryParams.append("chatNow", chatNow);
+        if (sessionType === "scheduled") queryParams.append("scheduleAvailable", "true");
         if (sort) queryParams.append("sort", sort);
 
         const res = await fetch(`/api/consult?${queryParams.toString()}`);
@@ -82,7 +99,7 @@ export default function ConsultPage() {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [search, specialization, language, rating, availability, mode, maxPrice, minExperience, chatNow, sort]);
+  }, [search, specialization, language, rating, availability, mode, maxPrice, minExperience, chatNow, sessionType, sort]);
 
   const top3 = pandits.slice(0, 3);
   const remainingPandits = pandits.slice(3);
@@ -211,6 +228,30 @@ export default function ConsultPage() {
 
         {/* Filter Bar */}
         <div className="max-w-7xl mx-auto w-full px-4 md:px-6 py-6 border-b border-ink/5 bg-cream/80 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+          {/* Session type chips */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => handleSessionType(sessionType === "instant" ? "" : "instant")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                sessionType === "instant"
+                  ? "bg-bhagva text-white shadow-md"
+                  : "bg-white text-ink/70 border border-ink/10 hover:border-bhagva/30"
+              }`}
+            >
+              <Zap className="w-4 h-4" /> Chat Now
+            </button>
+            <button
+              onClick={() => handleSessionType(sessionType === "scheduled" ? "" : "scheduled")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                sessionType === "scheduled"
+                  ? "bg-bhagva text-white shadow-md"
+                  : "bg-white text-ink/70 border border-ink/10 hover:border-bhagva/30"
+              }`}
+            >
+              <Calendar className="w-4 h-4" /> Schedule Later
+            </button>
+          </div>
+
           <div className="flex flex-col xl:flex-row gap-4 items-center">
             {/* Search (35%) */}
             <div className="relative w-full xl:w-[35%] flex-shrink-0">
@@ -243,7 +284,7 @@ export default function ConsultPage() {
                 <CustomSelect className="min-w-[140px] flex-1" value={availability} onChange={(v) => { setAvailability(v === "chatnow" ? "online" : v); setChatNow(v === "chatnow" ? "true" : ""); }} options={availOptions} placeholder="Availability" />
                 <CustomSelect className="min-w-[180px] flex-1" value={sort} onChange={setSort} options={sortOptions} placeholder="Sort by" />
                 
-                {(search || specialization || language || rating || availability || mode || maxPrice || minExperience || chatNow) && (
+                {(search || specialization || language || rating || availability || mode || maxPrice || minExperience || chatNow || sessionType) && (
                   <button onClick={resetFilters} className="flex-shrink-0 flex items-center justify-center p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-100" title="Reset Filters">
                     <RotateCcw className="w-5 h-5" />
                   </button>

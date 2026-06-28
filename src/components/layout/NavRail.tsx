@@ -28,7 +28,7 @@ const NAV_ITEMS = [
   { label: "ABOUT GURU", href: "/about", icon: User },
   { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
   { label: "CONSULT PANDIT", href: "/consult", icon: Users },
-  { label: "MY CONSULTATIONS", href: "/dashboard/consultations", icon: Calendar },
+  { label: "CHAT MENU", href: "/chat", icon: Calendar },
   { label: "MY WALLET", href: "/wallet", icon: Wallet },
   { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
   { label: "MY PROFILE", href: "/profile", icon: UserCircle2 },
@@ -133,7 +133,13 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
 
 function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; className?: string }) {
   const pathname = usePathname();
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/chat") {
+      return pathname.startsWith("/dashboard/consultations") || pathname.startsWith("/chat");
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <div className={`flex flex-col h-full px-5 py-8 ${className}`}>

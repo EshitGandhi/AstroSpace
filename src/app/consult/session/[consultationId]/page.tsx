@@ -61,6 +61,7 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
   const [walletBalance, setWalletBalance] = useState(0);
   const [ending, setEnding] = useState(false);
   const [useFallbackChat, setUseFallbackChat] = useState(false);
+  const [typingTriggered, setTypingTriggered] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const billingRef = useRef<NodeJS.Timeout | null>(null);
@@ -198,15 +199,27 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
     }
   };
 
-  const handlePanditStartChat = async () => {
+  const handlePanditTyping = async () => {
+    if (typingTriggered) return;
+    setTypingTriggered(true);
     try {
-      const res = await fetch(`/api/consultation/${params.consultationId}/start`, { method: "POST" });
+      const res = await fetch(`/api/consultation/${params.consultationId}/typing`, { method: "POST" });
       if (res.ok) {
-        await fetchSession();
-        fetchBalance();
+        const data = await res.json();
+        if (data.started) {
+          await fetchSession();
+          fetchBalance();
+        }
       }
     } catch {
-      // billing start handled via message API as fallback
+      setTypingTriggered(false);
+    }
+  };
+
+  const handleFallbackInputChange = (value: string) => {
+    setNewMessage(value);
+    if (isPandit && value.trim() && !typingTriggered) {
+      handlePanditTyping();
     }
   };
 
@@ -303,9 +316,9 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
         <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3 text-center text-sm text-yellow-800">
           {isPandit
             ? sessionData.mode === "CHAT"
-              ? "Send the first message to start billing."
+              ? "Start typing to begin billing and the session."
               : "Join the call to start billing."
-            : "Waiting for pandit to start the session..."}
+            : "Waiting for pandit to join — you have 3 minutes after acceptance."}
         </div>
       )}
 
@@ -336,7 +349,8 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
               userId={session.user.id}
               userName={session.user.name}
               isPandit={isPandit}
-              onPanditFirstMessage={isPandit ? handlePanditStartChat : undefined}
+              onPanditTyping={isPandit ? handlePanditTyping : undefined}
+              onSessionStarted={fetchSession}
             />
           ) : (
             <>
@@ -360,7 +374,7 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
                   <input
                     type="text"
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={(e) => handleFallbackInputChange(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                     placeholder="Type a message..."
                     className="flex-1 px-4 py-3 rounded-xl border border-ink/10 bg-cream focus:border-bhagva outline-none text-sm"

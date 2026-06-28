@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MessageSquare, Phone, Video, Loader2, Star, ExternalLink } from "lucide-react";
+import { MessageSquare, Phone, Video, Loader2, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import ReviewModal from "@/components/consultation/ReviewModal";
@@ -13,6 +13,7 @@ type Consultation = {
   isInstant: boolean;
   description?: string;
   scheduledTime?: string;
+  joinExpiresAt?: string;
   createdAt: string;
   startedAt?: string;
   endedAt?: string;
@@ -54,6 +55,44 @@ const modeIcon = (mode: string) => {
   }
 };
 
+function JoinCountdown({ expiresAt }: { expiresAt: string }) {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    const update = () => {
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft("Expired");
+        return;
+      }
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`);
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  return (
+    <span className={`font-mono text-xs font-bold ${timeLeft === "Expired" ? "text-red-500" : "text-bhagva"}`}>
+      Join in {timeLeft}
+    </span>
+  );
+}
+
+function joinLabel(mode: string, status: string) {
+  if (status === "ONGOING") {
+    if (mode === "CHAT") return "Open Chat";
+    if (mode === "VOICE") return "Join Voice";
+    if (mode === "VIDEO") return "Join Video";
+  }
+  if (mode === "CHAT") return "Open Chat";
+  if (mode === "VOICE") return "Join Voice";
+  if (mode === "VIDEO") return "Join Video";
+  return "Join";
+}
+
 export default function UserConsultationsPage() {
   const [activeTab, setActiveTab] = useState("PENDING,ACCEPTED,WAITING");
   const [reviewTarget, setReviewTarget] = useState<{
@@ -86,9 +125,9 @@ export default function UserConsultationsPage() {
     <div className="bg-cream min-h-screen py-24 px-6 max-w-5xl mx-auto">
       <div className="mb-8">
         <h1 className="text-4xl font-heading font-bold text-ink flex items-center gap-3">
-          <MessageSquare className="w-9 h-9 text-bhagva" /> My Consultations
+          <MessageSquare className="w-9 h-9 text-bhagva" /> Chat Menu
         </h1>
-        <p className="text-ink-muted mt-2">Track your consultation requests and history.</p>
+        <p className="text-ink-muted mt-2">Your consultation requests, active sessions, and history.</p>
       </div>
 
       <div className="flex gap-1 bg-white rounded-2xl p-1.5 shadow-sm border border-ink/5 overflow-x-auto mb-8">
@@ -145,6 +184,9 @@ export default function UserConsultationsPage() {
                       <span className="text-xs text-ink/40">
                         {formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}
                       </span>
+                      {(c.status === "WAITING" || c.status === "ACCEPTED") && c.joinExpiresAt && (
+                        <JoinCountdown expiresAt={c.joinExpiresAt} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -162,7 +204,8 @@ export default function UserConsultationsPage() {
                       href={`/consult/session/${c.id}`}
                       className="px-4 py-2 bg-bhagva text-white rounded-xl text-sm font-bold hover:bg-bhagva/90 transition-colors flex items-center gap-1.5"
                     >
-                      <ExternalLink className="w-4 h-4" /> Join
+                      {modeIcon(c.mode)}
+                      {joinLabel(c.mode, c.status)}
                     </Link>
                   )}
 

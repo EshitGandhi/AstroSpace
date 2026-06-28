@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Clock, ShieldAlert, CheckCircle2, User, ChevronRight, MessageSquare, IndianRupee, Calendar } from "lucide-react";
 import GlassCard from "@/components/ui/GlassCard";
 import OnlineToggle from "./OnlineToggle";
+import PanditPendingAlert from "@/components/pandit-dashboard/PanditPendingAlert";
 
 export default async function AstrologerDashboard() {
   const session = await getSession();
@@ -77,6 +78,8 @@ export default async function AstrologerDashboard() {
         </div>
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
       </GlassCard>
+
+      <PanditPendingAlert />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

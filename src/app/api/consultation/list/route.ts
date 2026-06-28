@@ -37,6 +37,13 @@ export async function GET(req: Request) {
       whereClause.status = { in: statuses };
     }
 
+    const isInstant = searchParams.get("isInstant");
+    if (isInstant === "true") {
+      whereClause.isInstant = true;
+    } else if (isInstant === "false") {
+      whereClause.isInstant = false;
+    }
+
     const consultations = await prisma.consultation.findMany({
       where: whereClause,
       include: {

@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { StreamChat, type Channel, type Event } from "stream-chat";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Wifi, WifiOff } from "lucide-react";
 
 type StreamChatPanelProps = {
   consultationId: string;
   streamChannelId: string | null;
   userId: string;
   userName: string;
-  onPanditFirstMessage?: () => void;
+  onPanditTyping?: () => void;
+  onSessionStarted?: () => void;
   isPandit?: boolean;
 };
 
@@ -25,7 +26,8 @@ export default function StreamChatPanel({
   streamChannelId,
   userId,
   userName,
-  onPanditFirstMessage,
+  onPanditTyping,
+  onSessionStarted,
   isPandit,
 }: StreamChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -33,10 +35,36 @@ export default function StreamChatPanel({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [connected, setConnected] = useState(false);
   const channelRef = useRef<Channel | null>(null);
   const clientRef = useRef<StreamChat | null>(null);
-  const panditStartedRef = useRef(false);
+  const typingTriggeredRef = useRef(false);
+  const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const triggerTypingBilling = useCallback(async () => {
+    if (!isPandit || typingTriggeredRef.current) return;
+    typingTriggeredRef.current = true;
+    onPanditTyping?.();
+    try {
+      const res = await fetch(`/api/consultation/${consultationId}/typing`, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.started) onSessionStarted?.();
+      }
+    } catch {
+      typingTriggeredRef.current = false;
+    }
+  }, [consultationId, isPandit, onPanditTyping, onSessionStarted]);
+
+  const handleInputChange = (value: string) => {
+    setNewMessage(value);
+    if (!isPandit || !value.trim() || typingTriggeredRef.current) return;
+    if (typingDebounceRef.current) clearTimeout(typingDebounceRef.current);
+    typingDebounceRef.current = setTimeout(() => {
+      triggerTypingBilling();
+    }, 300);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -58,6 +86,7 @@ export default function StreamChatPanel({
         const client = StreamChat.getInstance(apiKey);
         await client.connectUser({ id: userId, name: userName }, token);
         clientRef.current = client;
+        if (mounted) setConnected(true);
 
         const channelId = streamChannelId || `consultation_${consultationId}`;
         const channel = client.channel("messaging", channelId);
@@ -99,6 +128,7 @@ export default function StreamChatPanel({
 
     return () => {
       mounted = false;
+      if (typingDebounceRef.current) clearTimeout(typingDebounceRef.current);
       channelRef.current = null;
       clientRef.current?.disconnectUser().catch(() => undefined);
     };
@@ -112,11 +142,6 @@ export default function StreamChatPanel({
     if (!newMessage.trim() || !channelRef.current) return;
     setSending(true);
     try {
-      if (isPandit && !panditStartedRef.current && onPanditFirstMessage) {
-        panditStartedRef.current = true;
-        await onPanditFirstMessage();
-      }
-
       await channelRef.current.sendMessage({ text: newMessage.trim() });
 
       await fetch(`/api/consultation/${consultationId}/message`, {
@@ -151,6 +176,13 @@ export default function StreamChatPanel({
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
+      <div className="px-4 py-2 border-b border-ink/5 flex items-center gap-2 text-xs text-ink/50">
+        {connected ? (
+          <><Wifi className="w-3.5 h-3.5 text-green-500" /> Connected</>
+        ) : (
+          <><WifiOff className="w-3.5 h-3.5 text-red-400" /> Reconnecting...</>
+        )}
+      </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg) => {
           const isMe = msg.userId === userId;
@@ -175,7 +207,7 @@ export default function StreamChatPanel({
           <input
             type="text"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             placeholder="Type a message..."
             className="flex-1 px-4 py-3 rounded-xl border border-ink/10 bg-cream focus:border-bhagva outline-none text-sm"

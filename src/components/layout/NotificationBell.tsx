@@ -14,7 +14,7 @@ type Notification = {
   createdAt: string;
 };
 
-export default function NotificationBell() {
+export default function NotificationBell({ light = false }: { light?: boolean }) {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -66,10 +66,10 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-xl hover:bg-ink/5 transition-colors"
+        className={`relative p-2 rounded-xl transition-colors ${light ? "hover:bg-white/10" : "hover:bg-ink/5"}`}
         aria-label="Notifications"
       >
-        <Bell className="w-5 h-5 text-ink" />
+        <Bell className={`w-5 h-5 ${light ? "text-white" : "text-ink"}`} />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}

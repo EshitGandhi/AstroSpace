@@ -272,7 +272,28 @@ export async function releaseLockedBalance(consultationId: string) {
 }
 
 /**
- * Send a chat message; billing starts when pandit sends the first message.
+ * Start billing when pandit begins typing in chat (first keystroke).
+ */
+export async function startSessionOnTyping(consultationId: string, panditUserId: string) {
+  const consultation = await prisma.consultation.findUnique({
+    where: { id: consultationId },
+    include: { pandit: true },
+  });
+
+  if (!consultation) throw new Error("NOT_FOUND");
+  if (consultation.pandit.userId !== panditUserId) throw new Error("UNAUTHORIZED");
+  if (consultation.mode !== "CHAT") throw new Error("INVALID_MODE");
+  if (consultation.status === "ONGOING") throw new Error("ALREADY_STARTED");
+  if (consultation.status !== "WAITING" && consultation.status !== "ACCEPTED") {
+    throw new Error("INVALID_STATUS");
+  }
+
+  const updated = await startSession(consultationId, panditUserId);
+  return { started: true, consultation: updated };
+}
+
+/**
+ * Send a chat message (billing is triggered separately via typing).
  */
 export async function sendChatMessage(consultationId: string, senderUserId: string, messageText: string) {
   const consultation = await prisma.consultation.findUnique({
@@ -286,12 +307,6 @@ export async function sendChatMessage(consultationId: string, senderUserId: stri
   }
   if (!["WAITING", "ACCEPTED", "ONGOING"].includes(consultation.status)) {
     throw new Error("INVALID_STATUS");
-  }
-
-  const isPandit = consultation.pandit.userId === senderUserId;
-
-  if (consultation.mode === "CHAT" && isPandit && consultation.status !== "ONGOING") {
-    await startSession(consultationId, senderUserId);
   }
 
   const message = await prisma.consultMessage.create({
@@ -450,12 +465,12 @@ export async function expireStaleConsultations() {
   });
 
   for (const c of missedJoins) {
-    await prisma.consultation.update({ where: { id: c.id }, data: { status: "MISSED" } });
+    await prisma.consultation.update({ where: { id: c.id }, data: { status: "MISSED", endedAt: now } });
     await refundBalance(c.userId, c.id, c.lockedAmount, "Join window expired — refund");
     await createNotification({
       userId: c.userId,
       title: "Session Missed",
-      body: "The join window expired. Your wallet has been refunded.",
+      body: "You did not join within 3 minutes. Your wallet has been refunded.",
       type: "MISSED",
       metadata: { consultationId: c.id },
     });

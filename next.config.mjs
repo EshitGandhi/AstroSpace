@@ -31,6 +31,11 @@ const nextConfig = {
         destination: "/consult",
         permanent: true,
       },
+      {
+        source: "/chat",
+        destination: "/dashboard/consultations",
+        permanent: false,
+      },
     ];
   },
 };

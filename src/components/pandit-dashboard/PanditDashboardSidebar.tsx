@@ -20,6 +20,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import NotificationBell from "@/components/layout/NotificationBell";
 
 const RAIL_ORANGE = "#FF6B00";
 
@@ -104,6 +105,9 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
           <span className="text-white text-xs font-semibold truncate nav-rail-label-sm">
             {session.user.name}
           </span>
+        </div>
+        <div className="flex items-center justify-between px-1">
+          <NotificationBell light />
         </div>
         <button
           onClick={() => {

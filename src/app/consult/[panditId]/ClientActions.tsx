@@ -72,11 +72,19 @@ export default function ClientActions({ pandit }: { pandit: any }) {
     }
   };
 
+  const getMinimumBalance = (mode: ConsultMode): number => getPricePerMinute(mode);
+
+  const hasSufficientBalance = (mode: ConsultMode | null): boolean => {
+    if (!mode) return false;
+    return walletBalance >= getMinimumBalance(mode);
+  };
+
   const handleSubmit = async () => {
     if (!selectedMode) return;
 
-    if (walletBalance < 50) {
-      toast.error("Minimum ₹50 balance required. Please recharge.");
+    const minRequired = getMinimumBalance(selectedMode);
+    if (walletBalance < minRequired) {
+      toast.error(`Minimum ₹${minRequired} balance required for ${selectedMode.toLowerCase()} (1 min). Please recharge.`);
       return;
     }
 
@@ -140,7 +148,8 @@ export default function ClientActions({ pandit }: { pandit: any }) {
           {pandit.supportsVoice && (
             <button
               onClick={() => handleOpenModal("VOICE", true)}
-              className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3.5 rounded-xl bg-green-600 text-white font-bold shadow-md hover:bg-green-700 transition-colors"
+              disabled={!pandit.isOnline}
+              className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3.5 rounded-xl bg-green-600 text-white font-bold shadow-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Phone className="w-5 h-5" /> Voice Call
             </button>
@@ -148,7 +157,8 @@ export default function ClientActions({ pandit }: { pandit: any }) {
           {pandit.supportsVideo && (
             <button
               onClick={() => handleOpenModal("VIDEO", true)}
-              className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3.5 rounded-xl bg-purple-600 text-white font-bold shadow-md hover:bg-purple-700 transition-colors"
+              disabled={!pandit.isOnline}
+              className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3.5 rounded-xl bg-purple-600 text-white font-bold shadow-md hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Video className="w-5 h-5" /> Video Call
             </button>
@@ -249,17 +259,17 @@ export default function ClientActions({ pandit }: { pandit: any }) {
                     <Wallet className="w-5 h-5 text-bhagva" />
                     <span className="font-bold text-sm text-ink">Wallet Balance</span>
                   </div>
-                  <span className={`font-bold text-lg ${walletBalance >= 50 ? "text-green-600" : "text-red-600"}`}>
+                  <span className={`font-bold text-lg ${hasSufficientBalance(selectedMode) ? "text-green-600" : "text-red-600"}`}>
                     {loadingBalance ? <Loader2 className="w-4 h-4 animate-spin" /> : `₹${walletBalance.toFixed(2)}`}
                   </span>
                 </div>
-                {walletBalance < 50 && (
+                {selectedMode && !hasSufficientBalance(selectedMode) && (
                   <div className="mt-3 flex items-center gap-2 text-red-600 text-sm">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    <span>Minimum ₹50 required. <a href="/wallet" className="underline font-bold">Recharge now</a></span>
+                    <span>Minimum ₹{getMinimumBalance(selectedMode)} required (1 min). <a href="/wallet" className="underline font-bold">Recharge now</a></span>
                   </div>
                 )}
-                {selectedMode && walletBalance >= 50 && (
+                {selectedMode && hasSufficientBalance(selectedMode) && (
                   <p className="mt-2 text-xs text-ink/50">
                     Est. {Math.floor(walletBalance / getPricePerMinute(selectedMode))} minutes at ₹{getPricePerMinute(selectedMode)}/min
                   </p>
@@ -271,7 +281,7 @@ export default function ClientActions({ pandit }: { pandit: any }) {
             <div className="p-6 border-t border-ink/5">
               <button
                 onClick={handleSubmit}
-                disabled={!selectedMode || submitting || walletBalance < 50}
+                disabled={!selectedMode || submitting || !hasSufficientBalance(selectedMode)}
                 className="w-full py-4 bg-bhagva text-white rounded-2xl font-bold text-base hover:bg-bhagva/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
