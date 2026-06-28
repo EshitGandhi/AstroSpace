@@ -9,17 +9,20 @@ export async function GET(req: Request) {
     const language = searchParams.get("language");
     const rating = searchParams.get("rating");
     const availability = searchParams.get("availability");
+    const mode = searchParams.get("mode");
+    const maxPrice = searchParams.get("maxPrice");
+    const minExperience = searchParams.get("minExperience");
+    const chatNow = searchParams.get("chatNow");
     const sort = searchParams.get("sort") || "recommended";
-    
-    let whereClause: any = {
+
+    const whereClause: Record<string, unknown> = {
       verificationStatus: "APPROVED",
     };
 
     if (search) {
       whereClause.displayName = { contains: search, mode: "insensitive" };
     }
-    
-    // Arrays for Enums handling
+
     if (specialization) {
       whereClause.expertise = { has: specialization };
     }
@@ -32,35 +35,51 @@ export async function GET(req: Request) {
       whereClause.ratingAverage = { gte: parseFloat(rating) };
     }
 
-    if (availability === "online") {
+    if (availability === "online" || chatNow === "true") {
       whereClause.isOnline = true;
     }
 
-    let orderByClause: any = [];
-    
+    if (mode === "CHAT") {
+      whereClause.supportsChat = true;
+    } else if (mode === "VOICE") {
+      whereClause.supportsVoice = true;
+    } else if (mode === "VIDEO") {
+      whereClause.supportsVideo = true;
+    }
+
+    if (minExperience) {
+      whereClause.experience = { gte: parseInt(minExperience, 10) };
+    }
+
+    if (maxPrice) {
+      const price = parseInt(maxPrice, 10);
+      whereClause.chatPrice = { lte: price };
+    }
+
+    let orderByClause: Record<string, string>[] = [];
+
     switch (sort) {
       case "popular":
-        orderByClause = [{ totalReviews: 'desc' }];
+        orderByClause = [{ totalReviews: "desc" }];
         break;
       case "experience":
-        orderByClause = [{ experience: 'desc' }];
+        orderByClause = [{ experience: "desc" }];
         break;
       case "price_low":
-        orderByClause = [{ chatPrice: 'asc' }];
+        orderByClause = [{ chatPrice: "asc" }];
         break;
-      case "recommended":
       default:
         orderByClause = [
-          { ratingAverage: 'desc' },
-          { totalReviews: 'desc' },
-          { experience: 'desc' }
+          { ratingAverage: "desc" },
+          { totalReviews: "desc" },
+          { experience: "desc" },
         ];
         break;
     }
 
     const pandits = await prisma.astrologerProfile.findMany({
       where: whereClause,
-      orderBy: orderByClause
+      orderBy: orderByClause,
     });
 
     return NextResponse.json(pandits);

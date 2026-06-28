@@ -55,6 +55,10 @@ export default function ClientActions({ pandit }: { pandit: any }) {
       router.push("/sign-in?callbackUrl=/consult/" + pandit.id);
       return;
     }
+    if (instant && !pandit.isOnline) {
+      toast.error("Pandit is currently unavailable for instant consultation.");
+      return;
+    }
     setSelectedMode(mode);
     setIsInstant(instant);
     setModalOpen(true);
@@ -101,7 +105,6 @@ export default function ClientActions({ pandit }: { pandit: any }) {
       });
 
       if (res.ok) {
-        const consultation = await res.json();
         toast.success(isInstant ? "Request sent! Waiting for pandit to accept..." : "Consultation scheduled successfully!");
         setModalOpen(false);
         router.push(`/dashboard/consultations`);
@@ -129,7 +132,8 @@ export default function ClientActions({ pandit }: { pandit: any }) {
         <div className="max-w-4xl mx-auto flex gap-3 overflow-x-auto hide-scrollbar">
           <button
             onClick={() => handleOpenModal("CHAT", true)}
-            className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3.5 rounded-xl bg-bhagva text-white font-bold shadow-md hover:bg-bhagva/90 transition-colors"
+            disabled={!pandit.isOnline}
+            className="flex-1 min-w-[120px] flex items-center justify-center gap-2 py-3.5 rounded-xl bg-bhagva text-white font-bold shadow-md hover:bg-bhagva/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <MessageCircle className="w-5 h-5" /> Chat Now
           </button>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { expireStaleConsultations } from "@/lib/services/consultation";
 
 export async function GET(req: Request) {
   try {
@@ -9,11 +10,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    await expireStaleConsultations();
+
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const role = searchParams.get("role") || "user"; // "user" or "pandit"
 
-    let whereClause: any = {};
+    let whereClause: Record<string, unknown> = {};
 
     if (role === "pandit") {
       // Get pandit's profile ID

@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import NotificationBell from "@/components/layout/NotificationBell";
 import {
   Home,
   User,
@@ -101,7 +102,10 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
             {session.user.name}
           </span>
         </div>
-        {/* Sign out */}
+        {/* Notifications + Sign out */}
+        <div className="flex items-center justify-between px-1">
+          <NotificationBell />
+        </div>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"

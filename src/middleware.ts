@@ -14,6 +14,10 @@ export default withAuth(
     if (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up") || pathname.startsWith("/astrologer-register")) {
       if (role === "ASTROLOGER") return NextResponse.redirect(new URL("/pandit-dashboard", req.url));
       if (role === "ADMIN") return NextResponse.redirect(new URL("/admin", req.url));
+      const profileComplete = req.cookies.get("profile_complete")?.value === "1";
+      if (profileComplete) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
       return NextResponse.redirect(new URL("/profile-setup", req.url));
     }
 
@@ -26,7 +30,7 @@ export default withAuth(
     }
     
     // Protect normal user routes from Astrologer/Admin
-    const userOnlyRoutes = ["/dashboard", "/profile-setup", "/profile", "/kundli", "/booking", "/consultation"];
+    const userOnlyRoutes = ["/dashboard", "/profile-setup", "/profile", "/kundli", "/booking", "/wallet", "/consult"];
     const isUserOnlyRoute = userOnlyRoutes.some(p => pathname.startsWith(p));
     if (isUserOnlyRoute && role !== "USER") {
       return NextResponse.redirect(new URL(role === "ASTROLOGER" ? "/pandit-dashboard" : "/admin", req.url));
@@ -49,7 +53,6 @@ export default withAuth(
   },
   {
     callbacks: {
-      // Only run middleware logic on protected routes
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
 
@@ -59,17 +62,21 @@ export default withAuth(
           "/profile",
           "/kundli",
           "/booking",
-          "/consultation",
+          "/consult",
+          "/consult/session",
+          "/wallet",
           "/blog/create",
           "/api/booking",
           "/api/profile",
           "/api/payments",
+          "/api/wallet",
+          "/api/consultation",
           "/pandit-dashboard",
           "/admin"
         ];
 
         const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
-        if (isProtected && !token) return false; // triggers redirect to signIn page
+        if (isProtected && !token) return false;
         return true;
       },
     },

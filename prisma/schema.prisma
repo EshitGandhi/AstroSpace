@@ -252,6 +252,8 @@ model Consultation {
   streamChannelId  String?       // GetStream channel ID
   streamCallId     String?       // GetStream call ID
   expiresAt        DateTime?     // auto-expire for pending requests
+  joinExpiresAt    DateTime?     // user/pandit must join within 3 min of accept
+  billingStartedAt DateTime?
   createdAt        DateTime      @default(now())
 
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Script from "next/script";
 import { Wallet, ArrowUpCircle, ArrowDownCircle, Plus, Loader2, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
@@ -66,19 +67,69 @@ export default function UserWalletPage() {
     }
     setRecharging(true);
     try {
-      const res = await fetch("/api/wallet/balance", {
+      const orderRes = await fetch("/api/wallet/recharge/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
       });
-      if (res.ok) {
-        toast.success(`₹${amount} added to your wallet!`);
-        fetchData();
-        setCustomAmount("");
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Recharge failed");
+
+      if (orderRes.status === 503) {
+        const testRes = await fetch("/api/wallet/balance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount }),
+        });
+        if (testRes.ok) {
+          toast.success(`₹${amount} added to your wallet!`);
+          fetchData();
+          setCustomAmount("");
+        } else {
+          toast.error("Recharge failed");
+        }
+        return;
       }
+
+      if (!orderRes.ok) {
+        toast.error("Failed to create payment order");
+        return;
+      }
+
+      const { orderId, keyId } = await orderRes.json();
+
+      const Razorpay = (window as typeof window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void } }).Razorpay;
+      if (!Razorpay) {
+        toast.error("Payment gateway not loaded");
+        return;
+      }
+
+      const rzp = new Razorpay({
+        key: keyId,
+        amount: amount * 100,
+        currency: "INR",
+        name: "AstroGuru",
+        description: `Wallet recharge ₹${amount}`,
+        order_id: orderId,
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          const verifyRes = await fetch("/api/wallet/recharge/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...response, amount }),
+          });
+          if (verifyRes.ok) {
+            toast.success(`₹${amount} added to your wallet!`);
+            fetchData();
+            setCustomAmount("");
+          } else {
+            toast.error("Payment verification failed");
+          }
+        },
+        theme: { color: "#E8590C" },
+      });
+      rzp.open();
     } catch {
       toast.error("Network error");
     } finally {
@@ -96,6 +147,7 @@ export default function UserWalletPage() {
 
   return (
     <div className="bg-cream min-h-screen py-24 px-6 max-w-4xl mx-auto">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       <div className="mb-8">
         <h1 className="text-4xl font-heading font-bold text-ink flex items-center gap-3">
           <Wallet className="w-9 h-9 text-bhagva" /> My Wallet
@@ -120,7 +172,7 @@ export default function UserWalletPage() {
         <h2 className="font-bold text-ink text-lg mb-4 flex items-center gap-2">
           <Plus className="w-5 h-5 text-bhagva" /> Add Balance
         </h2>
-        <p className="text-sm text-ink/60 mb-4">Razorpay integration coming soon. For now, use quick add for testing.</p>
+        <p className="text-sm text-ink/60 mb-4">Pay securely via Razorpay. Test credits available when payments are not configured.</p>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-4">
           {RECHARGE_AMOUNTS.map((amt) => (
             <button

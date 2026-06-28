@@ -45,7 +45,7 @@ export default function ScheduleModal({ pandit, onClose }: ScheduleModalProps) {
       }
 
       onClose();
-      router.push("/profile?tab=consultations"); // Redirect to user's bookings
+      router.push("/dashboard/consultations");
     } catch (err: any) {
       setError(err.message || "An error occurred");
       setLoading(false);

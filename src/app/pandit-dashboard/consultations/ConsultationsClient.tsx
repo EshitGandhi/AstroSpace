@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
 import { MessageSquare, Phone, Video, Check, X, Clock, Loader2, User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -75,7 +74,6 @@ function CountdownTimer({ expiresAt }: { expiresAt: string }) {
 }
 
 export default function PanditConsultationsPage() {
-  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("PENDING");
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -231,7 +229,7 @@ export default function PanditConsultationsPage() {
                     </div>
                   )}
 
-                  {(c.status === "ACCEPTED" || c.status === "ONGOING") && (
+                  {(c.status === "ACCEPTED" || c.status === "WAITING" || c.status === "ONGOING") && (
                     <a
                       href={`/consult/session/${c.id}`}
                       className="px-4 py-2 bg-bhagva text-white rounded-xl text-sm font-bold hover:bg-bhagva/90 transition-colors"

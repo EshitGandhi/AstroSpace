@@ -21,7 +21,7 @@ export default function PanditCard({ pandit, rank }: PanditCardProps) {
       return;
     }
     if (action === "chat") {
-      router.push(`/chat/${pandit.id}`);
+      router.push(`/consult/${pandit.id}`);
     } else {
       router.push(`/consult/${pandit.id}?schedule=true`);
     }

@@ -18,6 +18,10 @@ export default function ConsultPage() {
   const [language, setLanguage] = useState("");
   const [rating, setRating] = useState("");
   const [availability, setAvailability] = useState("");
+  const [mode, setMode] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minExperience, setMinExperience] = useState("");
+  const [chatNow, setChatNow] = useState("");
   const [sort, setSort] = useState("recommended");
 
   const resetFilters = () => {
@@ -26,6 +30,10 @@ export default function ConsultPage() {
     setLanguage("");
     setRating("");
     setAvailability("");
+    setMode("");
+    setMaxPrice("");
+    setMinExperience("");
+    setChatNow("");
     setSort("recommended");
   };
 
@@ -51,6 +59,10 @@ export default function ConsultPage() {
         if (language) queryParams.append("language", language);
         if (rating) queryParams.append("rating", rating);
         if (availability) queryParams.append("availability", availability);
+        if (mode) queryParams.append("mode", mode);
+        if (maxPrice) queryParams.append("maxPrice", maxPrice);
+        if (minExperience) queryParams.append("minExperience", minExperience);
+        if (chatNow) queryParams.append("chatNow", chatNow);
         if (sort) queryParams.append("sort", sort);
 
         const res = await fetch(`/api/consult?${queryParams.toString()}`);
@@ -70,7 +82,7 @@ export default function ConsultPage() {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [search, specialization, language, rating, availability, sort]);
+  }, [search, specialization, language, rating, availability, mode, maxPrice, minExperience, chatNow, sort]);
 
   const top3 = pandits.slice(0, 3);
   const remainingPandits = pandits.slice(3);
@@ -121,7 +133,29 @@ export default function ConsultPage() {
 
   const availOptions = [
     { label: "Any Time", value: "" },
-    { label: "🟢 Online Now", value: "online" }
+    { label: "🟢 Online Now", value: "online" },
+    { label: "Chat Now Available", value: "chatnow" },
+  ];
+
+  const modeOptions = [
+    { label: "All Types", value: "" },
+    { label: "Chat", value: "CHAT" },
+    { label: "Voice", value: "VOICE" },
+    { label: "Video", value: "VIDEO" },
+  ];
+
+  const priceOptions = [
+    { label: "Any Price", value: "" },
+    { label: "Under ₹20/min", value: "20" },
+    { label: "Under ₹50/min", value: "50" },
+    { label: "Under ₹100/min", value: "100" },
+  ];
+
+  const expOptions = [
+    { label: "Any Experience", value: "" },
+    { label: "5+ Years", value: "5" },
+    { label: "10+ Years", value: "10" },
+    { label: "15+ Years", value: "15" },
   ];
 
   const sortOptions = [
@@ -203,10 +237,13 @@ export default function ConsultPage() {
                 <CustomSelect className="min-w-[160px] flex-1" value={specialization} onChange={setSpecialization} options={specOptions} placeholder="Specialization" />
                 <CustomSelect className="min-w-[140px] flex-1" value={language} onChange={setLanguage} options={langOptions} placeholder="Language" />
                 <CustomSelect className="min-w-[140px] flex-1" value={rating} onChange={setRating} options={ratingOptions} placeholder="Rating" />
-                <CustomSelect className="min-w-[140px] flex-1" value={availability} onChange={setAvailability} options={availOptions} placeholder="Availability" />
+                <CustomSelect className="min-w-[140px] flex-1" value={mode} onChange={setMode} options={modeOptions} placeholder="Type" />
+                <CustomSelect className="min-w-[140px] flex-1" value={maxPrice} onChange={setMaxPrice} options={priceOptions} placeholder="Max Price" />
+                <CustomSelect className="min-w-[140px] flex-1" value={minExperience} onChange={setMinExperience} options={expOptions} placeholder="Experience" />
+                <CustomSelect className="min-w-[140px] flex-1" value={availability} onChange={(v) => { setAvailability(v === "chatnow" ? "online" : v); setChatNow(v === "chatnow" ? "true" : ""); }} options={availOptions} placeholder="Availability" />
                 <CustomSelect className="min-w-[180px] flex-1" value={sort} onChange={setSort} options={sortOptions} placeholder="Sort by" />
                 
-                {(search || specialization || language || rating || availability) && (
+                {(search || specialization || language || rating || availability || mode || maxPrice || minExperience || chatNow) && (
                   <button onClick={resetFilters} className="flex-shrink-0 flex items-center justify-center p-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors border border-red-100" title="Reset Filters">
                     <RotateCcw className="w-5 h-5" />
                   </button>

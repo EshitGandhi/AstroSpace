@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     // If totalReviews is 0, the previous default rating of 1 is completely ignored.
     // The new rating becomes the new average.
     let newAverage = rating;
-    let newTotal = profile.totalReviews + 1;
+    const newTotal = profile.totalReviews + 1;
 
     if (profile.totalReviews > 0) {
       newAverage = ((profile.ratingAverage * profile.totalReviews) + rating) / newTotal;
@@ -42,8 +42,9 @@ export async function POST(req: Request) {
           userId: session.user.id,
           panditId,
           rating,
-          comment
-        }
+          comment,
+          consultationId: consultationId || undefined,
+        },
       }),
       prisma.astrologerProfile.update({
         where: { id: panditId },

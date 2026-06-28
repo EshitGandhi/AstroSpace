@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MessageSquare, Phone, Video, Clock, Loader2, Star, ExternalLink } from "lucide-react";
+import { MessageSquare, Phone, Video, Loader2, Star, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import ReviewModal from "@/components/consultation/ReviewModal";
 
 type Consultation = {
   id: string;
@@ -55,6 +56,11 @@ const modeIcon = (mode: string) => {
 
 export default function UserConsultationsPage() {
   const [activeTab, setActiveTab] = useState("PENDING,ACCEPTED,WAITING");
+  const [reviewTarget, setReviewTarget] = useState<{
+    panditId: string;
+    panditName: string;
+    consultationId: string;
+  } | null>(null);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -85,7 +91,6 @@ export default function UserConsultationsPage() {
         <p className="text-ink-muted mt-2">Track your consultation requests and history.</p>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 bg-white rounded-2xl p-1.5 shadow-sm border border-ink/5 overflow-x-auto mb-8">
         {TABS.map((tab) => (
           <button
@@ -152,7 +157,7 @@ export default function UserConsultationsPage() {
                     </div>
                   )}
 
-                  {(c.status === "ACCEPTED" || c.status === "ONGOING") && (
+                  {(c.status === "ACCEPTED" || c.status === "WAITING" || c.status === "ONGOING") && (
                     <Link
                       href={`/consult/session/${c.id}`}
                       className="px-4 py-2 bg-bhagva text-white rounded-xl text-sm font-bold hover:bg-bhagva/90 transition-colors flex items-center gap-1.5"
@@ -161,19 +166,35 @@ export default function UserConsultationsPage() {
                     </Link>
                   )}
 
-                  {c.status === "COMPLETED" && !c.description?.includes("reviewed") && (
-                    <Link
-                      href={`/consult/${c.pandit.id}`}
+                  {c.status === "COMPLETED" && (
+                    <button
+                      onClick={() =>
+                        setReviewTarget({
+                          panditId: c.pandit.id,
+                          panditName: c.pandit.displayName || "Pandit",
+                          consultationId: c.id,
+                        })
+                      }
                       className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-xl text-sm font-bold hover:bg-yellow-200 transition-colors flex items-center gap-1.5"
                     >
                       <Star className="w-4 h-4" /> Review
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {reviewTarget && (
+        <ReviewModal
+          panditId={reviewTarget.panditId}
+          panditName={reviewTarget.panditName}
+          consultationId={reviewTarget.consultationId}
+          onClose={() => setReviewTarget(null)}
+          onSubmitted={fetchConsultations}
+        />
       )}
     </div>
   );
