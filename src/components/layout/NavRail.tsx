@@ -16,6 +16,9 @@ import {
   UserCircle2,
   LogOut,
   Moon,
+  Users,
+  Wallet,
+  Calendar,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -23,6 +26,9 @@ const NAV_ITEMS = [
   { label: "HOROSCOPE", href: "/horoscope", icon: Moon },
   { label: "ABOUT GURU", href: "/about", icon: User },
   { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
+  { label: "CONSULT PANDIT", href: "/consult", icon: Users },
+  { label: "MY CONSULTATIONS", href: "/dashboard/consultations", icon: Calendar },
+  { label: "MY WALLET", href: "/wallet", icon: Wallet },
   { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
   { label: "MY PROFILE", href: "/profile", icon: UserCircle2 },
 ];

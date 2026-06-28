@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import WalletClient from "./WalletClient";
+import ConsultationsClient from "./ConsultationsClient";
 
-export default async function AstrologerWalletPage() {
+export default async function PanditConsultationsPage() {
   const session = await getSession();
 
   if (!session?.user?.id || session.user.role !== "ASTROLOGER") {
     redirect("/sign-in");
   }
 
-  return <WalletClient />;
+  return <ConsultationsClient />;
 }

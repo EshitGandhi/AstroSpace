@@ -17,6 +17,7 @@ import {
   LogOut,
   Menu,
   X,
+  MessageSquare,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -24,6 +25,7 @@ const RAIL_ORANGE = "#FF6B00";
 
 const NAV_ITEMS: { name: string; href: string; icon: LucideIcon }[] = [
   { name: "Dashboard", href: "/pandit-dashboard", icon: LayoutDashboard },
+  { name: "Consultations", href: "/pandit-dashboard/consultations", icon: MessageSquare },
   { name: "My Profile", href: "/pandit-dashboard/profile", icon: User },
   { name: "Availability", href: "/pandit-dashboard/availability", icon: Clock },
   { name: "Pricing", href: "/pandit-dashboard/pricing", icon: IndianRupee },
