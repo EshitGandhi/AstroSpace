@@ -56,20 +56,55 @@ enum LanguageEnum {
   ODIA       @map("Odia")
 }
 
+enum ConsultMode {
+  CHAT
+  VOICE
+  VIDEO
+}
+
+enum ConsultStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  WAITING
+  ONGOING
+  COMPLETED
+  CANCELLED
+  MISSED
+  TIMED_OUT
+}
+
+enum TransactionType {
+  RECHARGE
+  CONSULTATION_LOCK
+  CONSULTATION_DEBIT
+  CONSULTATION_REFUND
+  PANDIT_CREDIT
+  WITHDRAWAL
+  ADMIN_CREDIT
+}
+
 // ── Auth ──────────────────────────────────────────
 model User {
-  id        String      @id @default(cuid())
-  name      String
-  email     String      @unique
-  password  String
-  mobile    String?
-  role      Role        @default(USER)
-  createdAt DateTime    @default(now())
+  id            String      @id @default(cuid())
+  name          String
+  email         String      @unique
+  password      String
+  mobile        String?
+  role          Role        @default(USER)
+  walletBalance Int         @default(0) // stored in paisa (₹1 = 100 paisa)
+  createdAt     DateTime    @default(now())
 
   profile           UserProfile?
   astrologerProfile AstrologerProfile?
-  bookings  Booking[]
-  blogs     Blog[]
+  bookings          Booking[]
+  blogs             Blog[]
+  reviews           Review[]
+  consultations     Consultation[]
+  walletTransactions WalletTransaction[]
+  sentMessages      ConsultMessage[]
+  notifications     Notification[]
 }
 
 // ── Blog ─────────────────────────────────────────
@@ -96,7 +131,7 @@ model Comment {
   blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
 }
 
-// ── Booking ───────────────────────────────────────
+// ── Booking (legacy — kept for existing bookings) ─
 model Booking {
   id                String   @id @default(cuid())
   name              String
@@ -170,5 +205,119 @@ model AstrologerProfile {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
+  ratingAverage      Float            @default(1)
+  totalReviews       Int              @default(0)
+  isOnline           Boolean          @default(false)
+  supportsChat       Boolean          @default(true)
+  supportsVoice      Boolean          @default(true)
+  supportsVideo      Boolean          @default(true)
+  status             String           @default("active")
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviews            Review[]
+  consultations      Consultation[]
+}
+
+// ── Reviews ───────────────────────────────────────
+model Review {
+  id               String   @id @default(cuid())
+  panditId         String
+  userId           String
+  consultationId   String?  @unique
+  rating           Int      // 1-10 scale
+  comment          String?
+  createdAt        DateTime @default(now())
+
+  pandit           AstrologerProfile @relation(fields: [panditId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consultation     Consultation?     @relation(fields: [consultationId], references: [id])
+}
+
+// ── Consultation ──────────────────────────────────
+model Consultation {
+  id               String        @id @default(cuid())
+  userId           String
+  panditId         String
+  mode             ConsultMode
+  status           ConsultStatus @default(PENDING)
+  isInstant        Boolean       @default(true) // true = Chat Now, false = Scheduled
+  scheduledTime    DateTime?
+  startedAt        DateTime?
+  endedAt          DateTime?
+  totalMinutes     Int           @default(0)
+  totalCost        Int           @default(0)    // paisa
+  pricePerMinute   Int           @default(0)    // paisa — locked at creation
+  lockedAmount     Int           @default(0)    // paisa — wallet amount locked
+  description      String?
+  streamChannelId  String?       // GetStream channel ID
+  streamCallId     String?       // GetStream call ID
+  expiresAt        DateTime?     // auto-expire for pending requests
+  joinExpiresAt    DateTime?     // user/pandit must join within 3 min of accept
+  billingStartedAt DateTime?
+  createdAt        DateTime      @default(now())
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pandit           AstrologerProfile @relation(fields: [panditId], references: [id], onDelete: Cascade)
+  messages         ConsultMessage[]
+  transactions     WalletTransaction[]
+  events           ConsultEvent[]
+  review           Review?
+}
+
+// ── Consultation Messages ─────────────────────────
+model ConsultMessage {
+  id              String    @id @default(cuid())
+  consultationId  String
+  senderId        String
+  messageText     String
+  messageType     String    @default("text") // text, image, audio, document
+  streamMessageId String?   // GetStream message ID for sync
+  createdAt       DateTime  @default(now())
+  readAt          DateTime?
+
+  consultation    Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  sender          User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+// ── Consultation Events (audit log) ──────────────
+model ConsultEvent {
+  id              String    @id @default(cuid())
+  consultationId  String
+  eventType       String    // REQUEST_CREATED, ACCEPTED, REJECTED, TIMER_STARTED, MINUTE_BILLED, SESSION_ENDED, etc.
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+
+  consultation    Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+}
+
+// ── Wallet Transactions ──────────────────────────
+model WalletTransaction {
+  id                String          @id @default(cuid())
+  userId            String
+  consultationId    String?
+  type              TransactionType
+  amount            Int             // paisa (positive = credit, negative = debit)
+  balanceBefore     Int
+  balanceAfter      Int
+  description       String
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  createdAt         DateTime        @default(now())
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consultation      Consultation? @relation(fields: [consultationId], references: [id])
+}
+
+// ── Notifications ────────────────────────────────
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  body        String
+  type        String    // NEW_REQUEST, ACCEPTED, REJECTED, LOW_BALANCE, SESSION_STARTED, SESSION_ENDED, REVIEW_REMINDER
+  metadata    Json?
+  read        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

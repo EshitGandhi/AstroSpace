@@ -47,7 +47,7 @@ export default async function Dashboard() {
             {bookings.length === 0 ? (
               <GlassCard className="text-center py-12">
                 <p className="text-ink-muted mb-4">You have no upcoming consultations.</p>
-                <Link href="/consultation" className="text-bhagva hover:underline font-medium">
+                <Link href="/consult" className="text-bhagva hover:underline font-medium">
                   Book a session &rarr;
                 </Link>
               </GlassCard>

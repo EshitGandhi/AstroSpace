@@ -23,8 +23,18 @@ const nextConfig = {
     return [
       {
         source: "/booking",
-        destination: "/consultation",
+        destination: "/consult",
         permanent: true,
+      },
+      {
+        source: "/consultation",
+        destination: "/consult",
+        permanent: true,
+      },
+      {
+        source: "/chat",
+        destination: "/dashboard/consultations",
+        permanent: false,
       },
     ];
   },

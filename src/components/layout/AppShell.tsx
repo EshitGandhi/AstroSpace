@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import NavRail from "@/components/layout/NavRail";
 import Footer from "@/components/layout/Footer";
 
-const HIDE_NAV_RAIL_PREFIXES = ["/pandit-dashboard"];
+const HIDE_NAV_RAIL_PREFIXES = ["/pandit-dashboard", "/consult/session"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
