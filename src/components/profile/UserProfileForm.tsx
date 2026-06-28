@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -196,6 +196,13 @@ export default function UserProfileForm({ initialData }: UserProfileFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+
+  // Fix redirect loop: if profile is already complete in DB but cookie is missing
+  useEffect(() => {
+    if (initialData?.profileComplete && typeof document !== "undefined") {
+      document.cookie = "profile_complete=1; path=/; max-age=31536000; SameSite=Lax";
+    }
+  }, [initialData?.profileComplete]);
 
   const [form, setForm] = useState<FormData>({
     photoUrl: initialData?.photoUrl ?? "",
