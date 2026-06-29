@@ -15,7 +15,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {!hideNavRail && <NavRail />}
       <div
         className={`min-h-screen flex flex-col bg-cream ${
-          hideNavRail ? "" : "lg:ml-[300px] pt-16 lg:pt-0"
+          hideNavRail ? "" : "lg:ml-[240px] pt-14 lg:pt-0"
         }`}
       >
         <main className="flex-1 bg-cream">{children}</main>

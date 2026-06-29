@@ -50,14 +50,14 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-colors ${
+      className={`nav-rail-link group flex items-center gap-3 py-2 px-2 transition-colors ${
         active
           ? "text-yellow-400 opacity-100"
           : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
       }`}
     >
-      <Icon className="w-7 h-7 shrink-0" strokeWidth={2.25} aria-hidden />
-      <span className="nav-rail-label text-sm sm:text-base leading-tight">{item.name}</span>
+      <Icon className="w-5 h-5 shrink-0" strokeWidth={2.25} aria-hidden />
+      <span className="nav-rail-label text-xs leading-tight">{item.name}</span>
     </Link>
   );
 }
@@ -67,18 +67,21 @@ function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
     <Link
       href="/pandit-dashboard"
       onClick={onNavigate}
-      className="block w-full mt-auto pt-6"
+      className="block w-full mt-auto pt-4 pb-4"
       aria-label="Pandit dashboard home"
     >
-      <div className="relative w-full h-[min(42vh,300px)] min-h-[200px] overflow-hidden">
-        <Image
-          src="/guru-sidebar-reference.png"
-          alt="AstroGuru — Your Vedic Companion"
-          fill
-          sizes="300px"
-          className="object-cover object-[center_92%] scale-110 pointer-events-none select-none"
-          priority
-        />
+      <div className="flex flex-col items-center justify-center">
+        {/* Larger cream-background circle to blend with the logo background perfectly */}
+        <div className="relative w-[150px] h-[150px] rounded-full bg-[#FFF8F0] border-2 border-yellow-500/30 flex items-center justify-center shadow-2xl overflow-hidden group hover:border-yellow-500 transition-all duration-300">
+          <Image
+            src="/logo.png"
+            alt="AstroGuru Logo"
+            width={140}
+            height={140}
+            className="object-cover scale-110 group-hover:scale-115 transition-transform duration-300 pointer-events-none select-none"
+            priority
+          />
+        </div>
       </div>
     </Link>
   );
@@ -98,7 +101,7 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
   if (session?.user) {
     return (
       <div className="flex flex-col gap-2 py-3 border-t border-white/20">
-        <div className="flex items-center gap-2.5 px-1">
+        <div className="flex items-center gap-2 px-1">
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {session.user.name?.charAt(0).toUpperCase()}
           </div>
@@ -107,18 +110,15 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
           </span>
         </div>
         <div className="flex items-center justify-between px-1">
-          <NotificationBell light />
+          <NotificationBell />
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors"
+          >
+            <LogOut className="w-4 h-4" strokeWidth={2.5} />
+            Sign Out
+          </button>
         </div>
-        <button
-          onClick={() => {
-            onNavigate?.();
-            signOut({ callbackUrl: "/" });
-          }}
-          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
-        >
-          <LogOut className="w-4 h-4" strokeWidth={2.5} />
-          Logout
-        </button>
       </div>
     );
   }
@@ -130,8 +130,8 @@ function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; 
   const pathname = usePathname();
 
   return (
-    <div className={`flex flex-col h-full px-5 py-8 ${className}`}>
-      <nav className="flex flex-col gap-1 pt-2" aria-label="Pandit dashboard navigation">
+    <div className={`flex flex-col h-full px-4 py-5 ${className}`}>
+      <nav className="flex flex-col gap-0.5 pt-1" aria-label="Pandit dashboard navigation">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.href}
@@ -157,7 +157,7 @@ export default function PanditDashboardSidebar() {
     <>
       {/* Desktop rail */}
       <aside
-        className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col"
+        className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[240px] z-50 flex-col"
         style={{ backgroundColor: RAIL_ORANGE }}
       >
         <RailContent />
@@ -165,30 +165,33 @@ export default function PanditDashboardSidebar() {
 
       {/* Mobile header */}
       <header
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md"
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2.5 shadow-md"
         style={{ backgroundColor: RAIL_ORANGE }}
       >
         <Link href="/pandit-dashboard" className="flex items-center gap-2">
-          <Image
-            src="/guru-sidebar-reference.png"
-            alt="AstroGuru"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-full object-cover object-[center_75%]"
-          />
-          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
+          {/* Logo container matching user mobile layout */}
+          <div className="relative h-10 w-10 rounded-full bg-[#FFF8F0] border border-yellow-500/20 overflow-hidden flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="AstroGuru"
+              width={40}
+              height={40}
+              className="object-cover scale-110"
+            />
+          </div>
+          <span className="nav-rail-label text-sm text-white">ASTRO GURU</span>
         </Link>
         <button
           type="button"
           onClick={() => setDrawerOpen(!drawerOpen)}
-          className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
           aria-label={drawerOpen ? "Close menu" : "Open menu"}
           aria-expanded={drawerOpen}
         >
           {drawerOpen ? (
-            <X className="w-6 h-6" strokeWidth={2.5} />
+            <X className="w-5 h-5" strokeWidth={2.5} />
           ) : (
-            <Menu className="w-6 h-6" strokeWidth={2.5} />
+            <Menu className="w-5 h-5" strokeWidth={2.5} />
           )}
         </button>
       </header>
@@ -203,13 +206,13 @@ export default function PanditDashboardSidebar() {
 
       {/* Mobile drawer */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${
+        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,240px)] z-50 transition-transform duration-300 ease-in-out ${
           drawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ backgroundColor: RAIL_ORANGE }}
         aria-hidden={!drawerOpen}
       >
-        <div className="pt-16 h-full">
+        <div className="pt-14 h-full">
           <RailContent onNavigate={closeDrawer} />
         </div>
       </aside>
