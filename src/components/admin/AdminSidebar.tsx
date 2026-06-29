@@ -7,17 +7,12 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   LayoutDashboard,
-  User,
-  Clock,
-  IndianRupee,
-  Calendar,
-  Wallet,
-  Star,
-  Settings,
+  Users,
+  MessageSquare,
+  Bot,
   LogOut,
   Menu,
   X,
-  MessageSquare,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import NotificationBell from "@/components/layout/NotificationBell";
@@ -25,15 +20,10 @@ import NotificationBell from "@/components/layout/NotificationBell";
 const RAIL_ORANGE = "#FF6B00";
 
 const NAV_ITEMS: { name: string; href: string; icon: LucideIcon }[] = [
-  { name: "Dashboard", href: "/pandit-dashboard", icon: LayoutDashboard },
-  { name: "Consultations", href: "/pandit-dashboard/consultations", icon: MessageSquare },
-  { name: "My Profile", href: "/pandit-dashboard/profile", icon: User },
-  { name: "Availability", href: "/pandit-dashboard/availability", icon: Clock },
-  { name: "Pricing", href: "/pandit-dashboard/pricing", icon: IndianRupee },
-  { name: "Bookings", href: "/pandit-dashboard/bookings", icon: Calendar },
-  { name: "Wallet", href: "/pandit-dashboard/wallet", icon: Wallet },
-  { name: "Reviews", href: "/pandit-dashboard/reviews", icon: Star },
-  { name: "Settings", href: "/pandit-dashboard/settings", icon: Settings },
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Pandits", href: "/admin/pandits", icon: Users },
+  { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
+  { name: "Chatbot Settings", href: "/admin/chatbot", icon: Bot },
 ];
 
 function NavLink({
@@ -62,28 +52,6 @@ function NavLink({
   );
 }
 
-function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
-  return (
-    <Link
-      href="/pandit-dashboard"
-      onClick={onNavigate}
-      className="block w-full mt-auto pt-6"
-      aria-label="Pandit dashboard home"
-    >
-      <div className="relative w-full h-[min(42vh,300px)] min-h-[200px] overflow-hidden">
-        <Image
-          src="/guru-sidebar-reference.png"
-          alt="AstroGuru — Your Vedic Companion"
-          fill
-          sizes="300px"
-          className="object-cover object-[center_92%] scale-110 pointer-events-none select-none"
-          priority
-        />
-      </div>
-    </Link>
-  );
-}
-
 function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
   const { data: session, status } = useSession();
 
@@ -97,7 +65,7 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
 
   if (session?.user) {
     return (
-      <div className="flex flex-col gap-2 py-3 border-t border-white/20">
+      <div className="flex flex-col gap-2 py-3 border-t border-white/20 mt-auto">
         <div className="flex items-center gap-2.5 px-1">
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {session.user.name?.charAt(0).toUpperCase()}
@@ -106,7 +74,7 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
             {session.user.name}
           </span>
         </div>
-
+        
         <button
           onClick={() => {
             onNavigate?.();
@@ -129,7 +97,10 @@ function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; 
 
   return (
     <div className={`flex flex-col h-full px-5 py-8 ${className}`}>
-      <nav className="flex flex-col gap-1 pt-2" aria-label="Pandit dashboard navigation">
+      <div className="text-white font-bold text-xl mb-8 px-2 flex items-center gap-2">
+        Admin Portal
+      </div>
+      <nav className="flex flex-col gap-1 pt-2 flex-1" aria-label="Admin navigation">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.href}
@@ -138,22 +109,18 @@ function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; 
             onNavigate={onNavigate}
           />
         ))}
-      </nav>
-      <div className="flex flex-col flex-1 min-h-0">
         <AuthBlock onNavigate={onNavigate} />
-        <BrandBlock onNavigate={onNavigate} />
-      </div>
+      </nav>
     </div>
   );
 }
 
-export default function PanditDashboardSidebar() {
+export default function AdminSidebar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const closeDrawer = () => setDrawerOpen(false);
 
   return (
     <>
-      {/* Desktop rail */}
       <aside
         className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col"
         style={{ backgroundColor: RAIL_ORANGE }}
@@ -161,12 +128,11 @@ export default function PanditDashboardSidebar() {
         <RailContent />
       </aside>
 
-      {/* Mobile header */}
       <header
         className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md"
         style={{ backgroundColor: RAIL_ORANGE }}
       >
-        <Link href="/pandit-dashboard" className="flex items-center gap-2">
+        <Link href="/admin" className="flex items-center gap-2">
           <Image
             src="/guru-sidebar-reference.png"
             alt="AstroGuru"
@@ -174,7 +140,7 @@ export default function PanditDashboardSidebar() {
             height={40}
             className="h-10 w-10 rounded-full object-cover object-[center_75%]"
           />
-          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
+          <span className="nav-rail-label text-base text-white">ADMIN PORTAL</span>
         </Link>
         <div className="flex items-center gap-2">
           <NotificationBell light />
@@ -182,8 +148,6 @@ export default function PanditDashboardSidebar() {
             type="button"
             onClick={() => setDrawerOpen(!drawerOpen)}
             className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label={drawerOpen ? "Close menu" : "Open menu"}
-            aria-expanded={drawerOpen}
           >
             {drawerOpen ? (
               <X className="w-6 h-6" strokeWidth={2.5} />
@@ -202,7 +166,6 @@ export default function PanditDashboardSidebar() {
         />
       )}
 
-      {/* Mobile drawer */}
       <aside
         className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${
           drawerOpen ? "translate-x-0" : "-translate-x-full"

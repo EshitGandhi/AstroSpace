@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { MessageSquare, Phone, Video, Check, X, Clock, Loader2, User, Zap, Calendar } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "react-hot-toast";
 
 type Consultation = {
   id: string;
@@ -82,42 +83,77 @@ function JoinSessionButton({ mode, status, id }: { mode: string; status: string;
 
 export default function PanditConsultationsPage() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [allConsultations, setAllConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const activeTab = TABS[activeTabIndex];
 
-  const fetchConsultations = useCallback(async () => {
-    setLoading(true);
+  const fetchConsultations = useCallback(async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
-      const params = new URLSearchParams({
-        role: "pandit",
-        status: activeTab.key,
-      });
-      if (activeTab.isInstant !== undefined) {
-        params.set("isInstant", activeTab.isInstant);
-      }
-      const res = await fetch(`/api/consultation/list?${params.toString()}`);
+      const res = await fetch(`/api/consultation/list?role=pandit`);
       if (res.ok) {
-        setConsultations(await res.json());
+        const data = await res.json();
+        setAllConsultations((prev) => {
+          if (prev.length > 0) {
+            data.forEach((c: Consultation) => {
+              const old = prev.find(p => p.id === c.id);
+              if (old) {
+                if (old.status !== "WAITING" && c.status === "WAITING") {
+                  toast.success(`User has joined the session!`);
+                }
+                if (old.status !== "ONGOING" && c.status === "ONGOING") {
+                  toast.success(`Session is now active!`);
+                  setActiveTabIndex(TABS.findIndex(t => t.key === "ONGOING"));
+                }
+                if (old.status !== "PENDING" && c.status === "PENDING") {
+                  toast.success(`New consultation request!`);
+                }
+              }
+            });
+            const newConsultations = data.filter((c: Consultation) => !prev.some(p => p.id === c.id));
+            newConsultations.forEach((c: Consultation) => {
+               if (c.status === "PENDING") {
+                 toast.success(`New consultation request!`);
+               }
+            });
+          }
+          return data;
+        });
       }
     } catch (err) {
       console.error("Failed to fetch consultations:", err);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
-  }, [activeTab]);
+  }, []);
 
   useEffect(() => {
-    fetchConsultations();
+    fetchConsultations(true);
+    const interval = setInterval(() => fetchConsultations(false), 5000);
+    return () => clearInterval(interval);
   }, [fetchConsultations]);
 
-  useEffect(() => {
-    if (!activeTab.key.includes("PENDING")) return;
-    const interval = setInterval(fetchConsultations, 10000);
-    return () => clearInterval(interval);
-  }, [activeTab, fetchConsultations]);
+  const displayedConsultations = allConsultations.filter(c => {
+    const keys = activeTab.key.split(",");
+    if (!keys.includes(c.status)) return false;
+    if (activeTab.isInstant !== undefined) {
+      return c.isInstant.toString() === activeTab.isInstant;
+    }
+    return true;
+  });
+
+  const getTabCount = (tab: TabDef) => {
+    return allConsultations.filter(c => {
+      const keys = tab.key.split(",");
+      if (!keys.includes(c.status)) return false;
+      if (tab.isInstant !== undefined) {
+        return c.isInstant.toString() === tab.isInstant;
+      }
+      return true;
+    }).length;
+  };
 
   const handleAction = async (id: string, action: "accept" | "reject") => {
     setActionLoading(id);
@@ -162,6 +198,11 @@ export default function PanditConsultationsPage() {
             {tab.isInstant === "true" && <Zap className="w-3.5 h-3.5" />}
             {tab.isInstant === "false" && <Calendar className="w-3.5 h-3.5" />}
             {tab.label}
+            {tab.key !== "COMPLETED" && tab.key !== "CANCELLED,REJECTED,EXPIRED,MISSED,TIMED_OUT" && getTabCount(tab) > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTabIndex === idx ? "bg-white/20 text-white" : "bg-ink/10 text-ink"}`}>
+                {getTabCount(tab)}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -170,7 +211,7 @@ export default function PanditConsultationsPage() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-bhagva" />
         </div>
-      ) : consultations.length === 0 ? (
+      ) : displayedConsultations.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-ink/5 shadow-sm">
           <MessageSquare className="w-12 h-12 text-bhagva/30 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-ink mb-1">No bookings here</h3>
@@ -180,7 +221,7 @@ export default function PanditConsultationsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {consultations.map((c) => (
+          {displayedConsultations.map((c) => (
             <div key={c.id} className="bg-white rounded-2xl p-5 border border-ink/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -102,10 +102,7 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
             {session.user.name}
           </span>
         </div>
-        {/* Notifications + Sign out */}
-        <div className="flex items-center justify-between px-1">
-          <NotificationBell />
-        </div>
+
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
@@ -179,15 +176,18 @@ export default function NavRail() {
           />
           <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
-          aria-label={drawerOpen ? "Close menu" : "Open menu"}
-          aria-expanded={drawerOpen}
-        >
-          {drawerOpen ? <X className="w-6 h-6" strokeWidth={2.5} /> : <Menu className="w-6 h-6" strokeWidth={2.5} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell light />
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label={drawerOpen ? "Close menu" : "Open menu"}
+            aria-expanded={drawerOpen}
+          >
+            {drawerOpen ? <X className="w-6 h-6" strokeWidth={2.5} /> : <Menu className="w-6 h-6" strokeWidth={2.5} />}
+          </button>
+        </div>
       </header>
 
       {drawerOpen && (

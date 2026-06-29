@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, Globe, Mail } from "lucide-react";
+import FeedbackModal from "@/components/shared/FeedbackModal";
 
 export default function Footer() {
   return (
@@ -78,7 +79,9 @@ export default function Footer() {
               <Mail className="w-5 h-5" />
             </a>
           </div>
-          <p className="text-white/40 text-sm">hello@astroguru.com</p>
+          <p className="text-white/40 text-sm mb-6">hello@astroguru.com</p>
+
+          <FeedbackModal />
         </div>
 
       </div>

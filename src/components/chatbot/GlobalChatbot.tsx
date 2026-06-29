@@ -25,6 +25,7 @@ export default function GlobalChatbot() {
   // Manage conversational context for multi-turn flows (e.g., Horoscope checker)
   const [chatContext, setChatContext] = useState<{ step?: string; sign?: string; lang?: string } | null>(null);
   const [dynamicSuggestions, setDynamicSuggestions] = useState<string[] | null>(null);
+  const [adminSuggestions, setAdminSuggestions] = useState<string[]>([]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +53,15 @@ export default function GlobalChatbot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
+  useEffect(() => {
+    fetch("/api/chat/suggestions")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setAdminSuggestions(data);
+      })
+      .catch(console.error);
+  }, []);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
@@ -63,8 +73,8 @@ export default function GlobalChatbot() {
   }, [messages, isTyping]);
 
   const defaultSuggestions = role === "ASTROLOGER" 
-    ? ["Check Horoscope", "Complete My Profile", "Update Pricing", "Manage Availability"]
-    : ["Check Horoscope", "Read Tarot Cards", "Register as an Astrologer", "Find an Astrologer", "Give Feedback"];
+    ? [...adminSuggestions, "Check Horoscope", "Complete My Profile", "Update Pricing", "Manage Availability"]
+    : [...adminSuggestions, "Check Horoscope", "Read Tarot Cards", "Register as an Astrologer", "Find an Astrologer", "Give Feedback"];
 
   const suggestions = dynamicSuggestions || defaultSuggestions;
 

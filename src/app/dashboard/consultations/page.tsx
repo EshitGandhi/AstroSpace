@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { MessageSquare, Phone, Video, Loader2, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 import ReviewModal from "@/components/consultation/ReviewModal";
 
 type Consultation = {
@@ -100,26 +101,53 @@ export default function UserConsultationsPage() {
     panditName: string;
     consultationId: string;
   } | null>(null);
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [allConsultations, setAllConsultations] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchConsultations = useCallback(async () => {
-    setLoading(true);
+  const fetchConsultations = useCallback(async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
-      const res = await fetch(`/api/consultation/list?role=user&status=${activeTab}`);
+      const res = await fetch(`/api/consultation/list?role=user`);
       if (res.ok) {
-        setConsultations(await res.json());
+        const data = await res.json();
+        setAllConsultations((prev) => {
+          if (prev.length > 0) {
+            data.forEach((c: Consultation) => {
+              const old = prev.find(p => p.id === c.id);
+              if (old) {
+                if (old.status !== "WAITING" && c.status === "WAITING") {
+                  toast.success(`Pandit has joined! Please join the session.`);
+                }
+                if (old.status !== "ONGOING" && c.status === "ONGOING") {
+                  toast.success(`Session started!`);
+                  setActiveTab("ONGOING");
+                }
+              }
+            });
+          }
+          return data;
+        });
       }
     } catch (err) {
       console.error("Failed to fetch:", err);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
-  }, [activeTab]);
+  }, []);
 
   useEffect(() => {
-    fetchConsultations();
+    fetchConsultations(true);
+    const interval = setInterval(() => fetchConsultations(false), 5000);
+    return () => clearInterval(interval);
   }, [fetchConsultations]);
+
+  const currentTabKeys = activeTab.split(",");
+  const displayedConsultations = allConsultations.filter(c => currentTabKeys.includes(c.status));
+
+  const getTabCount = (keyStr: string) => {
+    const keys = keyStr.split(",");
+    return allConsultations.filter(c => keys.includes(c.status)).length;
+  };
 
   return (
     <div className="bg-cream min-h-screen py-24 px-6 max-w-5xl mx-auto">
@@ -135,13 +163,18 @@ export default function UserConsultationsPage() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+            className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
               activeTab === tab.key
                 ? "bg-bhagva text-white shadow-sm"
                 : "text-ink/60 hover:text-ink hover:bg-ink/5"
             }`}
           >
             {tab.label}
+            {tab.key !== "COMPLETED" && tab.key !== "CANCELLED,REJECTED,EXPIRED,MISSED,TIMED_OUT" && getTabCount(tab.key) > 0 && (
+              <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === tab.key ? "bg-white/20 text-white" : "bg-ink/10 text-ink"}`}>
+                {getTabCount(tab.key)}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -150,7 +183,7 @@ export default function UserConsultationsPage() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-bhagva" />
         </div>
-      ) : consultations.length === 0 ? (
+      ) : displayedConsultations.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-ink/5">
           <MessageSquare className="w-12 h-12 text-bhagva/30 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-ink mb-2">No consultations here</h3>
@@ -161,7 +194,7 @@ export default function UserConsultationsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {consultations.map((c) => (
+          {displayedConsultations.map((c) => (
             <div key={c.id} className="bg-white rounded-2xl p-5 border border-ink/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">

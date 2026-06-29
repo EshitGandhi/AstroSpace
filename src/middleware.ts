@@ -31,7 +31,7 @@ export default withAuth(
     
     // Protect normal user routes from Astrologer/Admin
     const userOnlyRoutes = ["/dashboard", "/profile-setup", "/profile", "/kundli", "/booking"];
-    const isUserOnlyRoute = userOnlyRoutes.some(p => pathname.startsWith(p));
+    const isUserOnlyRoute = userOnlyRoutes.some(p => pathname.startsWith(p)) || pathname === "/";
     if (isUserOnlyRoute && role !== "USER") {
       return NextResponse.redirect(new URL(role === "ASTROLOGER" ? "/pandit-dashboard" : "/admin", req.url));
     }
