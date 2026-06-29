@@ -33,7 +33,11 @@ export async function GET(req: Request) {
     }
 
     if (rating) {
-      whereClause.ratingAverage = { gte: parseFloat(rating) };
+      if (rating === "below_7") {
+        whereClause.ratingAverage = { lt: 7 };
+      } else {
+        whereClause.ratingAverage = { gte: parseFloat(rating) };
+      }
     }
 
     if (availability === "online" || chatNow === "true") {
