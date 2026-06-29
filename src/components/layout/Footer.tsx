@@ -43,7 +43,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/consultation" className="text-white/60 hover:text-bhagva transition-colors">
+              <Link href="/consult" className="text-white/60 hover:text-bhagva transition-colors">
                 Consultation
               </Link>
             </li>

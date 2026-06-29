@@ -4,15 +4,15 @@
 
 /* ── Design tokens as CSS custom properties ── */
 :root {
-  --night:      #23121C;
-  --night-2:    #3A1F33;
-  --gold:       #E0B33C;
-  --bhagva:     #E8590C;
-  --cream:      #FFF8F0;
+  --night: #23121C;
+  --night-2: #3A1F33;
+  --gold: #E0B33C;
+  --bhagva: #E8590C;
+  --cream: #FFF8F0;
   --cream-tint: #FCE9DA;
-  --ink:        #2E1410;
-  --ink-muted:  #6B5046;
-  --white:      #FFFFFF;
+  --ink: #2E1410;
+  --ink-muted: #6B5046;
+  --white: #FFFFFF;
 }
 
 /* ── Base body: Earthly surface by default ── */
@@ -29,6 +29,7 @@ body {
     background-color: var(--night);
     color: var(--white);
   }
+
   .surface-earthly {
     background-color: var(--cream);
     color: var(--ink);
@@ -38,7 +39,7 @@ body {
 /* ── Nav rail: reference-style outlined labels (orange sidebar) ── */
 @layer components {
   .nav-rail-label {
-    color: #ffffff;
+    color: currentColor;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import NotificationBell from "@/components/layout/NotificationBell";
 import {
   Home,
   User,
@@ -16,13 +17,20 @@ import {
   LogIn,
   UserCircle2,
   LogOut,
+  Users,
+  Wallet,
+  Calendar,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "HOME", href: "/", icon: Home },
+  { label: "HOROSCOPE", href: "/horoscope", icon: Moon },
   { label: "ABOUT GURU", href: "/about", icon: User },
   { label: "SERVICES & FEATURES", href: "/tools", icon: Briefcase },
   { label: "KUNDLI", href: "/kundli", icon: Moon },
+  { label: "CONSULT PANDIT", href: "/consult", icon: Users },
+  { label: "CHAT MENU", href: "/chat", icon: Calendar },
+  { label: "MY WALLET", href: "/wallet", icon: Wallet },
   { label: "TALK TO GURU", href: "/contact", icon: MessageCircle },
   { label: "MY PROFILE", href: "/profile", icon: UserCircle2 },
 ];
@@ -43,11 +51,13 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-opacity ${
-        active ? "opacity-100" : "opacity-90 hover:opacity-100"
+      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-colors ${
+        active 
+          ? "text-yellow-400 opacity-100" 
+          : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
       }`}
     >
-      <Icon className="w-7 h-7 shrink-0 text-white" strokeWidth={2.25} aria-hidden />
+      <Icon className="w-7 h-7 shrink-0" strokeWidth={2.25} aria-hidden />
       <span className="nav-rail-label text-sm sm:text-base leading-tight">{item.label}</span>
     </Link>
   );
@@ -93,7 +103,10 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
             {session.user.name}
           </span>
         </div>
-        {/* Sign out */}
+        {/* Notifications + Sign out */}
+        <div className="flex items-center justify-between px-1">
+          <NotificationBell />
+        </div>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
@@ -121,7 +134,13 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
 
 function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; className?: string }) {
   const pathname = usePathname();
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/chat") {
+      return pathname.startsWith("/dashboard/consultations") || pathname.startsWith("/chat");
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <div className={`flex flex-col h-full px-5 py-8 ${className}`}>
@@ -159,7 +178,7 @@ export default function NavRail() {
             height={40}
             className="h-10 w-10 rounded-full object-cover object-[center_75%]"
           />
-          <span className="nav-rail-label text-base">ASTRO GURU</span>
+          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
         </Link>
         <button
           type="button"

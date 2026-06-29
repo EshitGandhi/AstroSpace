@@ -201,11 +201,15 @@ export default function SignUpPage() {
               </span>
             </motion.button>
 
-            <div className="text-center">
+            <div className="text-center space-y-3 mt-2">
               <p className="text-sm text-ink-muted">
                 Already have an account?{" "}
                 <Link href="/sign-in" className="text-bhagva font-semibold hover:underline">Sign in</Link>
               </p>
+              <div className="h-px bg-ink/10 w-full" />
+              <Link href="/astrologer-register" className="inline-block text-sm text-night font-bold hover:text-bhagva transition-colors">
+                Register as Astrologer &rarr;
+              </Link>
             </div>
           </form>
         </div>

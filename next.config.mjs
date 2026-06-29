@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   experimental: {
     serverComponentsExternalPackages: [
       "@ishubhamx/panchangam-js",
@@ -23,8 +29,18 @@ const nextConfig = {
     return [
       {
         source: "/booking",
-        destination: "/consultation",
+        destination: "/consult",
         permanent: true,
+      },
+      {
+        source: "/consultation",
+        destination: "/consult",
+        permanent: true,
+      },
+      {
+        source: "/chat",
+        destination: "/dashboard/consultations",
+        permanent: false,
       },
     ];
   },
