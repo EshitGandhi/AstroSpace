@@ -221,7 +221,7 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
           </div>
           
           {expertiseOpen && (
-            <div className="absolute z-[100] w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-[9999] w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
               {EXPERTISE_OPTIONS.map((option) => (
                 <div 
                   key={option.value}
@@ -261,7 +261,7 @@ export default function ProfileForm({ profile, user }: { profile: any, user: any
           </div>
           
           {languageOpen && (
-            <div className="absolute z-[100] w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-[9999] w-full mt-1 bg-white border border-ink/10 rounded-xl shadow-lg max-h-60 overflow-y-auto">
               {LANGUAGE_OPTIONS.map((option) => (
                 <div 
                   key={option.value}
