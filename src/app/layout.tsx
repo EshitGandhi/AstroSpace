@@ -5,6 +5,7 @@ import "./globals.css";
 
 import AppShell from "@/components/layout/AppShell";
 import SessionProvider from "@/components/providers/SessionProvider";
+import GlobalChatbot from "@/components/chatbot/GlobalChatbot";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({
@@ -50,6 +51,7 @@ export default function RootLayout({
               },
             }}
           />
+          <GlobalChatbot />
         </SessionProvider>
       </body>
     </html>
