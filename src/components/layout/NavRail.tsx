@@ -50,30 +50,32 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      className={`nav-rail-link group flex items-center gap-4 py-3 px-2 transition-colors ${
-        active 
-          ? "text-yellow-400 opacity-100" 
-          : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
-      }`}
+      className={`nav-rail-link group flex items-center gap-3 py-2 px-2 transition-colors ${active
+        ? "text-yellow-400 opacity-100"
+        : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
+        }`}
     >
-      <Icon className="w-7 h-7 shrink-0" strokeWidth={2.25} aria-hidden />
-      <span className="nav-rail-label text-sm sm:text-base leading-tight">{item.label}</span>
+      <Icon className="w-5 h-5 shrink-0" strokeWidth={2.25} aria-hidden />
+      <span className="nav-rail-label text-xs leading-tight">{item.label}</span>
     </Link>
   );
 }
 
 function BrandBlock({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <Link href="/" onClick={onNavigate} className="block w-full mt-auto pt-6" aria-label="AstroGuru home">
-      <div className="relative w-full h-[min(42vh,300px)] min-h-[200px] overflow-hidden">
-        <Image
-          src="/guru-sidebar-reference.png"
-          alt="AstroGuru — Your Vedic Companion"
-          fill
-          sizes="300px"
-          className="object-cover object-[center_92%] scale-110 pointer-events-none select-none"
-          priority
-        />
+    <Link href="/" onClick={onNavigate} className="block w-full mt-auto pt-4 pb-4" aria-label="AstroGuru home">
+      <div className="flex flex-col items-center justify-center">
+        {/* Larger cream-background circle to blend with the logo background perfectly */}
+        <div className="relative w-[150px] h-[150px] rounded-full bg-[#FFF8F0] border-2 border-yellow-500/30 flex items-center justify-center shadow-2xl overflow-hidden group hover:border-yellow-500 transition-all duration-300">
+          <Image
+            src="/logo.png"
+            alt="AstroGuru Logo"
+            width={140}
+            height={140}
+            className="object-cover scale-110 group-hover:scale-115 transition-transform duration-300 pointer-events-none select-none"
+            priority
+          />
+        </div>
       </div>
     </Link>
   );
@@ -139,8 +141,8 @@ function RailContent({ onNavigate, className = "" }: { onNavigate?: () => void; 
   };
 
   return (
-    <div className={`flex flex-col h-full px-5 py-8 ${className}`}>
-      <nav className="flex flex-col gap-1 pt-2" aria-label="Main navigation">
+    <div className={`flex flex-col h-full px-4 py-5 ${className}`}>
+      <nav className="flex flex-col gap-0.5 pt-1" aria-label="Main navigation">
         {NAV_ITEMS.map((item) => (
           <NavLink key={item.href} item={item} active={isActive(item.href)} onNavigate={onNavigate} />
         ))}
@@ -160,21 +162,24 @@ export default function NavRail() {
   return (
     <>
       {/* Desktop rail */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[300px] z-50 flex-col" style={{ backgroundColor: RAIL_ORANGE }}>
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-[240px] z-50 flex-col" style={{ backgroundColor: RAIL_ORANGE }}>
         <RailContent />
       </aside>
 
       {/* Mobile header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 shadow-md" style={{ backgroundColor: RAIL_ORANGE }}>
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2.5 shadow-md" style={{ backgroundColor: RAIL_ORANGE }}>
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/guru-sidebar-reference.png"
-            alt="AstroGuru"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-full object-cover object-[center_75%]"
-          />
-          <span className="nav-rail-label text-base text-white">ASTRO GURU</span>
+          {/* Logo container matching desktop branding */}
+          <div className="relative h-10 w-10 rounded-full bg-[#FFF8F0] border border-yellow-500/20 overflow-hidden flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="AstroGuru"
+              width={40}
+              height={40}
+              className="object-cover scale-110"
+            />
+          </div>
+          <span className="nav-rail-label text-sm text-white">ASTRO GURU</span>
         </Link>
         <div className="flex items-center gap-2">
           <NotificationBell light />
@@ -196,12 +201,12 @@ export default function NavRail() {
 
       {/* Mobile drawer */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,300px)] z-50 transition-transform duration-300 ease-in-out ${drawerOpen ? "translate-x-0" : "-translate-x-full"
+        className={`lg:hidden fixed top-0 left-0 bottom-0 w-[min(100vw,240px)] z-50 transition-transform duration-300 ease-in-out ${drawerOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         style={{ backgroundColor: RAIL_ORANGE }}
         aria-hidden={!drawerOpen}
       >
-        <div className="pt-16 h-full">
+        <div className="pt-14 h-full">
           <RailContent onNavigate={closeDrawer} />
         </div>
       </aside>

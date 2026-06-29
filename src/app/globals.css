@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Responsive root font scaling ── */
+html {
+  /* 13px base at ≤1280px, scales up to 14px at 1440px, 15px at 1920px */
+  font-size: clamp(12px, 0.85vw, 14px);
+}
+
 /* ── Design tokens as CSS custom properties ── */
 :root {
   --night: #23121C;

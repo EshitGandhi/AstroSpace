@@ -45,7 +45,7 @@ export default async function PanditProfilePage({ params }: { params: { panditId
               <div className="flex-1 pt-2 w-full">
                 <h1 className="text-3xl md:text-4xl font-black font-heading text-ink flex items-center justify-center md:justify-start gap-2">
                   {pandit.displayName || "Pandit Ji"}
-                  {isVerified && <ShieldCheck className="w-6 h-6 text-green-500" title="Verified" />}
+                  {isVerified && <ShieldCheck className="w-6 h-6 text-green-500" />}
                 </h1>
                 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">

@@ -144,8 +144,11 @@ export default function ConsultPage() {
 
   const ratingOptions = [
     { label: "Any Rating", value: "" },
-    { label: "4.5 & Above", value: "4.5" },
-    { label: "4.0 & Above", value: "4.0" }
+    { label: "Below 7", value: "below_7" },
+    { label: "More than 7", value: "7" },
+    { label: "More than 8", value: "8" },
+    { label: "More than 9", value: "9" },
+    { label: "10", value: "10" }
   ];
 
   const availOptions = [
@@ -266,17 +269,17 @@ export default function ConsultPage() {
             </div>
             
             {/* Filters */}
-            <div className="w-full flex-1 flex items-center gap-2 relative">
+            <div className="w-full flex-1 min-w-0 flex items-center gap-2 relative">
               <button onClick={scrollLeft} className="p-2 bg-white rounded-full shadow-sm border border-ink/10 text-ink/60 hover:text-bhagva z-10 flex-shrink-0">
                 <ChevronLeft className="w-5 h-5" />
               </button>
               
               <div 
                 ref={scrollRef} 
-                className="flex-1 flex gap-3 overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1"
+                className="flex-1 min-w-0 flex gap-3 overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-1"
               >
-                <CustomSelect className="min-w-[160px] flex-1" value={specialization} onChange={setSpecialization} options={specOptions} placeholder="Specialization" />
-                <CustomSelect className="min-w-[140px] flex-1" value={language} onChange={setLanguage} options={langOptions} placeholder="Language" />
+                <CustomSelect className="min-w-[160px] flex-1" value={specialization} onChange={setSpecialization} options={specOptions} placeholder="Specialization" openDirection="down" />
+                <CustomSelect className="min-w-[140px] flex-1" value={language} onChange={setLanguage} options={langOptions} placeholder="Language" openDirection="down" />
                 <CustomSelect className="min-w-[140px] flex-1" value={rating} onChange={setRating} options={ratingOptions} placeholder="Rating" />
                 <CustomSelect className="min-w-[140px] flex-1" value={mode} onChange={setMode} options={modeOptions} placeholder="Type" />
                 <CustomSelect className="min-w-[140px] flex-1" value={maxPrice} onChange={setMaxPrice} options={priceOptions} placeholder="Max Price" />

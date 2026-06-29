@@ -8,6 +8,13 @@ import {
   SpeakerLayout,
   CallControls,
   useCallStateHooks,
+  ParticipantView,
+  ToggleAudioPublishingButton,
+  ToggleVideoPublishingButton,
+  ScreenShareButton,
+  CancelCallButton,
+  ReactionsButton,
+  useCall,
 } from "@stream-io/video-react-sdk";
 import { StreamVideoClient } from "@stream-io/video-client";
 import { Loader2, User } from "lucide-react";
@@ -25,13 +32,24 @@ type StreamCallPanelProps = {
   otherImage?: string;
 };
 
-function CallUI({ otherName, otherImage }: { otherName?: string; otherImage?: string }) {
-  const { useCallCallingState } = useCallStateHooks();
+function CallUI({
+  otherName,
+  otherImage,
+  isVoiceCall,
+}: {
+  otherName?: string;
+  otherImage?: string;
+  isVoiceCall: boolean;
+}) {
+  const { useCallCallingState, useParticipants, useLocalParticipant } = useCallStateHooks();
   const callingState = useCallCallingState();
+  const participants = useParticipants();
+  const localParticipant = useLocalParticipant();
+  const call = useCall();
 
   if (callingState !== "joined") {
     return (
-      <div className="text-center">
+      <div className="text-center h-full flex flex-col items-center justify-center">
         <div className="w-32 h-32 bg-cream-tint rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl overflow-hidden">
           {otherImage ? (
             <img src={otherImage} alt="" className="w-full h-full object-cover" />
@@ -45,11 +63,38 @@ function CallUI({ otherName, otherImage }: { otherName?: string; otherImage?: st
     );
   }
 
+  const otherParticipant = participants.find((p) => p.sessionId !== localParticipant?.sessionId);
+
   return (
-    <div className="w-full max-w-3xl">
-      <SpeakerLayout />
-      <div className="flex justify-center mt-6">
-        <CallControls />
+    <div className="w-full h-full max-h-[80vh] flex flex-col relative rounded-2xl overflow-hidden bg-black shadow-2xl">
+      {/* Main View: Other Person */}
+      <div className="flex-1 w-full h-full">
+        {otherParticipant ? (
+          <ParticipantView participant={otherParticipant} />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-white/50 space-y-4">
+            <User className="w-16 h-16 opacity-50" />
+            <p>Waiting for other person to join...</p>
+          </div>
+        )}
+      </div>
+
+      {/* Floating View: Self (Min View, Left Side) */}
+      {localParticipant && (
+        <div className="absolute bottom-24 left-4 w-28 sm:w-36 md:w-48 aspect-[3/4] md:aspect-video rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 bg-gray-900 z-10">
+          <ParticipantView participant={localParticipant} />
+        </div>
+      )}
+
+      {/* Controls */}
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20">
+        <div className="str-video__call-controls">
+          <ToggleAudioPublishingButton />
+          {!isVoiceCall && <ToggleVideoPublishingButton />}
+          {!isVoiceCall && <ScreenShareButton />}
+          <ReactionsButton />
+          <CancelCallButton onLeave={() => call?.leave()} />
+        </div>
       </div>
     </div>
   );
@@ -69,6 +114,8 @@ export default function StreamCallPanel({
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [call, setCall] = useState<ReturnType<StreamVideoClient["call"]> | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const isVoiceCall = mode === "VOICE";
 
   useEffect(() => {
     let videoClient: StreamVideoClient | null = null;
@@ -92,14 +139,25 @@ export default function StreamCallPanel({
 
         const callId = streamCallId || `${mode.toLowerCase()}_${consultationId}`;
         const c = videoClient.call("default", callId);
-        await c.join({ create: true });
+
+        // For voice calls: join with camera disabled and screen share off
+        await c.join({
+          create: true,
+        });
+
+        // Immediately disable camera for voice calls
+        if (isVoiceCall) {
+          await c.camera.disable();
+        }
+
         setCall(c);
 
         if (isPandit && onPanditJoined) {
           onPanditJoined();
         }
-      } catch {
-        setError("Failed to join call.");
+      } catch (err: any) {
+        console.error("Join call error:", err);
+        setError(err?.message || "Failed to join call.");
       }
     }
 
@@ -137,12 +195,14 @@ export default function StreamCallPanel({
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8">
+    <div className="flex-1 flex flex-col p-2 md:p-6 w-full h-full min-h-0">
       <StreamVideo client={client}>
         <StreamCall call={call}>
-          <StreamTheme>
-            <CallUI otherName={otherName} otherImage={otherImage} />
-          </StreamTheme>
+          <div className="str-video str-video__theme-light w-full h-full flex flex-col">
+            <StreamTheme className="flex-1 flex flex-col h-full min-h-0">
+              <CallUI otherName={otherName} otherImage={otherImage} isVoiceCall={isVoiceCall} />
+            </StreamTheme>
+          </div>
         </StreamCall>
       </StreamVideo>
     </div>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // Assuming standard prisma client setup is here
+import { prisma } from "@/lib/prisma"; // Assuming standard prisma client setup is here
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 

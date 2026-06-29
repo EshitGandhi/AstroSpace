@@ -249,6 +249,10 @@ model Consultation {
   pricePerMinute   Int           @default(0)    // paisa — locked at creation
   lockedAmount     Int           @default(0)    // paisa — wallet amount locked
   description      String?
+  packageId          String?
+  packageDuration    Int?          // In minutes
+  packagePrice       Int?          // In paisa
+  discountPercentage Float?
   streamChannelId  String?       // GetStream channel ID
   streamCallId     String?       // GetStream call ID
   expiresAt        DateTime?     // auto-expire for pending requests

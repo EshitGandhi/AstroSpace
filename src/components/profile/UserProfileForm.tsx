@@ -561,7 +561,7 @@ export default function UserProfileForm({ initialData }: UserProfileFormProps) {
               ) : (
                 <>
                   <Star className="w-5 h-5" />
-                  Continue — Generate My Kundli
+                  Save Profile
                 </>
               )}
             </span>

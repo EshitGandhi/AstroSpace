@@ -234,28 +234,32 @@ export default function ProfileEditClient({ profile, clerkName, clerkEmail, cler
           </div>
 
           {/* Avatar + info row */}
-          <div className="px-6 pb-6 -mt-12">
-            <div className="flex items-end justify-between gap-4 flex-wrap">
-              {/* Avatar */}
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg bg-cream-tint flex-shrink-0">
-                {displayPhoto ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={displayPhoto} alt={clerkName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-bhagva/10">
-                    <User className="w-8 h-8 text-bhagva/60" />
-                  </div>
-                )}
-              </div>
+          <div className="px-6 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              
+              {/* Left group: Avatar and Name/Email */}
+              <div className="flex items-center gap-4">
+                {/* Avatar overlapping the banner using translation */}
+                <div className="relative w-20 h-20 -translate-y-8 rounded-full overflow-hidden border-4 border-white shadow-lg bg-cream-tint flex-shrink-0 z-10">
+                  {displayPhoto ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={displayPhoto} alt={clerkName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-bhagva/10">
+                      <User className="w-8 h-8 text-bhagva/60" />
+                    </div>
+                  )}
+                </div>
 
-              {/* Name + email */}
-              <div className="flex-1 min-w-0 mb-1">
-                <h1 className="text-xl font-extrabold text-ink font-heading truncate">{clerkName || "Your Profile"}</h1>
-                <p className="text-sm text-ink-muted truncate">{clerkEmail}</p>
+                {/* Name + email positioned fully in the white area */}
+                <div className="-translate-y-3 min-w-0">
+                  <h1 className="text-xl font-extrabold text-ink font-heading truncate">{clerkName || "Your Profile"}</h1>
+                  <p className="text-sm text-ink-muted truncate">{clerkEmail}</p>
+                </div>
               </div>
 
               {/* Completion badge */}
-              <div className="flex flex-col items-center gap-1 flex-shrink-0 mb-1">
+              <div className="flex flex-col items-center gap-1 flex-shrink-0 -translate-y-3">
                 <div className="relative w-12 h-12">
                   <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
                     <circle cx="24" cy="24" r="18" fill="none" stroke="#FCE9DA" strokeWidth="4" />
