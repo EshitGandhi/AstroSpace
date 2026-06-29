@@ -252,9 +252,13 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cream">
+      <div className="h-[100dvh] flex items-center justify-center bg-cream">
         <Loader2 className="w-10 h-10 animate-spin text-bhagva" />
       </div>
     );
@@ -266,54 +270,54 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
   const waitingToStart = ["WAITING", "ACCEPTED"].includes(sessionData.status);
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      <div className="bg-white border-b border-ink/10 px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+    <div className="h-[100dvh] overflow-hidden bg-cream flex flex-col">
+      <div className="bg-white border-b border-ink/10 px-4 py-3 flex items-center justify-between z-50 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-cream-tint flex items-center justify-center overflow-hidden">
+          <div className="w-10 h-10 rounded-full bg-cream-tint flex items-center justify-center overflow-hidden shrink-0">
             {sessionData.pandit.profileImage ? (
               <img src={sessionData.pandit.profileImage} alt="" className="w-full h-full object-cover" />
             ) : (
               <User className="w-5 h-5 text-bhagva" />
             )}
           </div>
-          <div>
-            <h3 className="font-bold text-ink text-sm">{otherName}</h3>
-            <div className="flex items-center gap-2 text-xs text-ink/50">
+          <div className="min-w-0">
+            <h3 className="font-bold text-ink text-sm truncate">{otherName}</h3>
+            <div className="flex items-center gap-2 text-xs text-ink/50 whitespace-nowrap">
               {sessionData.mode === "CHAT" && <MessageSquare className="w-3 h-3" />}
               {sessionData.mode === "VOICE" && <Phone className="w-3 h-3" />}
               {sessionData.mode === "VIDEO" && <Video className="w-3 h-3" />}
               <span>{sessionData.mode} Session</span>
               {sessionData.status === "ONGOING" && (
-                <span className="ml-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="ml-1 w-2 h-2 bg-green-500 rounded-full animate-pulse shrink-0" />
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 shrink-0">
           <div className="flex items-center gap-1.5 bg-cream-tint px-3 py-1.5 rounded-full">
-            <Clock className="w-4 h-4 text-bhagva" />
+            <Clock className="w-4 h-4 text-bhagva shrink-0" />
             <span className="font-mono font-bold text-sm text-ink">{formatTime(elapsedSeconds)}</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5 bg-cream-tint px-3 py-1.5 rounded-full">
-            <Wallet className="w-4 h-4 text-green-600" />
+            <Wallet className="w-4 h-4 text-green-600 shrink-0" />
             <span className="font-bold text-sm text-ink">₹{walletBalance.toFixed(0)}</span>
           </div>
           {!isCompleted && (
             <button
               onClick={handleEndSession}
               disabled={ending || sessionData.status !== "ONGOING"}
-              className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 py-2 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-colors disabled:opacity-50 shrink-0"
             >
-              {ending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PhoneOff className="w-4 h-4" />}
-              End
+              {ending ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <PhoneOff className="w-4 h-4 shrink-0" />}
+              <span className="hidden sm:inline">End</span>
             </button>
           )}
         </div>
       </div>
 
       {waitingToStart && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3 text-center text-sm text-yellow-800">
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3 text-center text-sm text-yellow-800 shrink-0">
           {isPandit
             ? sessionData.mode === "CHAT"
               ? "Start typing to begin billing and the session."
@@ -323,7 +327,7 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
       )}
 
       {isCompleted ? (
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex-1 overflow-y-auto flex items-center justify-center p-8">
           <div className="text-center max-w-md">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <MessageSquare className="w-10 h-10 text-green-600" />
@@ -341,7 +345,7 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
           </div>
         </div>
       ) : sessionData.mode === "CHAT" ? (
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 bg-white">
           {process.env.NEXT_PUBLIC_STREAM_API_KEY && !useFallbackChat ? (
             <StreamChatPanel
               consultationId={sessionData.id}
@@ -360,16 +364,16 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
                   return (
                     <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                       <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
-                        isMe ? "bg-bhagva text-white rounded-br-md" : "bg-white text-ink border border-ink/10 rounded-bl-md"
+                        isMe ? "bg-bhagva text-white rounded-br-md" : "bg-cream text-ink border border-ink/10 rounded-bl-md"
                       }`}>
                         {msg.messageText}
                       </div>
                     </div>
                   );
                 })}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef} className="h-1" />
               </div>
-              <div className="bg-white border-t border-ink/10 p-4">
+              <div className="bg-white border-t border-ink/10 p-4 shrink-0">
                 <div className="max-w-3xl mx-auto flex gap-3">
                   <input
                     type="text"
@@ -382,7 +386,7 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
                   <button
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
-                    className="px-4 py-3 bg-bhagva text-white rounded-xl hover:bg-bhagva/90 transition-colors disabled:opacity-50"
+                    className="px-4 py-3 bg-bhagva text-white rounded-xl hover:bg-bhagva/90 transition-colors disabled:opacity-50 shrink-0"
                   >
                     <Send className="w-5 h-5" />
                   </button>
@@ -393,24 +397,26 @@ export default function ConsultSessionPage({ params }: { params: { consultationI
           {process.env.NEXT_PUBLIC_STREAM_API_KEY && (
             <button
               onClick={() => setUseFallbackChat(true)}
-              className="text-xs text-center py-2 text-ink/40 hover:text-ink/60"
+              className="text-xs text-center py-2 text-ink/40 hover:text-ink/60 bg-white shrink-0"
             >
               Switch to fallback messaging
             </button>
           )}
         </div>
       ) : (
-        <StreamCallPanel
-          consultationId={sessionData.id}
-          streamCallId={sessionData.streamCallId || null}
-          mode={sessionData.mode as "VOICE" | "VIDEO"}
-          userId={session.user.id}
-          userName={session.user.name}
-          isPandit={isPandit}
-          onPanditJoined={isPandit ? handlePanditJoinCall : undefined}
-          otherName={otherName}
-          otherImage={sessionData.pandit.profileImage}
-        />
+        <div className="flex-1 flex flex-col min-h-0 bg-white">
+          <StreamCallPanel
+            consultationId={sessionData.id}
+            streamCallId={sessionData.streamCallId || null}
+            mode={sessionData.mode as "VOICE" | "VIDEO"}
+            userId={session.user.id}
+            userName={session.user.name}
+            isPandit={isPandit}
+            onPanditJoined={isPandit ? handlePanditJoinCall : undefined}
+            otherName={otherName}
+            otherImage={sessionData.pandit.profileImage}
+          />
+        </div>
       )}
     </div>
   );
