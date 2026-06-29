@@ -41,8 +41,8 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <HouseCard houseNumber={1} houseName="Tanu" title="Rashi Checker" description="Discover your Sun sign traits instantly." link="/tools" iconName="User" />
             <HouseCard houseNumber={4} houseName="Bandhu" title="Kundli Generator" description="Get your complete birth chart with detailed coordinates." link="/kundli" iconName="Compass" />
-            <HouseCard houseNumber={7} houseName="Yuvati" title="Guna Matching" description="Analyze partnership compatibility score." link="/consultation" iconName="Heart" />
-            <HouseCard houseNumber={10} houseName="Karma" title="Consultation" description="Book an expert astrologer for career guidance." link="/consultation" iconName="Briefcase" />
+            <HouseCard houseNumber={7} houseName="Yuvati" title="Guna Matching" description="Analyze partnership compatibility score." link="/consult" iconName="Heart" />
+            <HouseCard houseNumber={10} houseName="Karma" title="Consultation" description="Book an expert astrologer for career guidance." link="/consult" iconName="Briefcase" />
           </div>
         </div>
       </section>
@@ -61,7 +61,7 @@ export default function Home() {
           <p className="text-xl text-ink-muted">
             Book a consultation today and unlock the deepest secrets of your cosmic blueprint.
           </p>
-          <Link href="/consultation">
+          <Link href="/consult">
             <AnimatedButton variant="primary" size="lg">Schedule Reading</AnimatedButton>
           </Link>
         </div>

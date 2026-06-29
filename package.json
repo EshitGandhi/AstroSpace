@@ -13,6 +13,8 @@
   "dependencies": {
     "@ishubhamx/panchangam-js": "^2.2.6",
     "@prisma/client": "^6.19.3",
+    "@stream-io/video-client": "^1.55.0",
+    "@stream-io/video-react-sdk": "^1.39.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
@@ -25,7 +27,9 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.6.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "stream-chat": "^9.47.1",
+    "stream-chat-react": "^14.6.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

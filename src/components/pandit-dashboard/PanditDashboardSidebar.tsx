@@ -17,13 +17,16 @@ import {
   LogOut,
   Menu,
   X,
+  MessageSquare,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import NotificationBell from "@/components/layout/NotificationBell";
 
 const RAIL_ORANGE = "#FF6B00";
 
 const NAV_ITEMS: { name: string; href: string; icon: LucideIcon }[] = [
   { name: "Dashboard", href: "/pandit-dashboard", icon: LayoutDashboard },
+  { name: "Consultations", href: "/pandit-dashboard/consultations", icon: MessageSquare },
   { name: "My Profile", href: "/pandit-dashboard/profile", icon: User },
   { name: "Availability", href: "/pandit-dashboard/availability", icon: Clock },
   { name: "Pricing", href: "/pandit-dashboard/pricing", icon: IndianRupee },
@@ -102,6 +105,9 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
           <span className="text-white text-xs font-semibold truncate nav-rail-label-sm">
             {session.user.name}
           </span>
+        </div>
+        <div className="flex items-center justify-between px-1">
+          <NotificationBell light />
         </div>
         <button
           onClick={() => {
