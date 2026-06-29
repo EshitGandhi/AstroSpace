@@ -43,6 +43,7 @@ export default function RootLayout({
           <AppShell>{children}</AppShell>
           <Toaster
             position="bottom-right"
+            containerStyle={{ bottom: '100px' }}
             toastOptions={{
               style: {
                 background: "#FFF8F0",

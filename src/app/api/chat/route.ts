@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 const ZODIAC_SIGNS = [
   "aries", "taurus", "gemini", "cancer", "leo", "virgo", 
@@ -14,6 +15,26 @@ export async function POST(req: Request) {
     }
 
     const msgLower = message.toLowerCase();
+    
+    // 1. Fetch Dynamic Contexts from Admin DB
+    const adminContexts = await prisma.chatbotContext.findMany();
+    const dynamicSuggestions = adminContexts
+      .filter((c) => c.isButton && c.buttonLabel)
+      .map((c) => c.buttonLabel as string);
+
+    // Check if the user message matches any Admin Custom Context
+    const matchedAdminContext = adminContexts.find(c => 
+      msgLower.includes(c.keyword.toLowerCase()) || 
+      (c.buttonLabel && msgLower === c.buttonLabel.toLowerCase())
+    );
+
+    if (matchedAdminContext) {
+      return NextResponse.json({
+        reply: matchedAdminContext.reply,
+        context: null,
+        suggestions: dynamicSuggestions.length > 0 ? dynamicSuggestions : null,
+      });
+    }
     
     // Process Multi-turn Horoscope Flow
     if (context && context.step) {
@@ -126,6 +147,10 @@ export async function POST(req: Request) {
       } else if (msgLower.includes("find an astrologer")) {
         reply = "You can browse our certified astrologers on the 'Talk to Guru' page. Filter by expertise, language, and pricing to find the perfect match.";
       }
+    }
+
+    if (!suggestions && dynamicSuggestions.length > 0) {
+      suggestions = dynamicSuggestions;
     }
 
     return NextResponse.json({ reply, action, context: newContext, suggestions });

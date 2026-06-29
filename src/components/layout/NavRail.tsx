@@ -50,11 +50,10 @@ function NavLink({
     <Link
       href={item.href}
       onClick={onNavigate}
-      className={`nav-rail-link group flex items-center gap-3 py-2 px-2 transition-colors ${
-        active 
-          ? "text-yellow-400 opacity-100" 
-          : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
-      }`}
+      className={`nav-rail-link group flex items-center gap-3 py-2 px-2 transition-colors ${active
+        ? "text-yellow-400 opacity-100"
+        : "text-white opacity-90 hover:text-yellow-400 hover:opacity-100"
+        }`}
     >
       <Icon className="w-5 h-5 shrink-0" strokeWidth={2.25} aria-hidden />
       <span className="nav-rail-label text-xs leading-tight">{item.label}</span>
@@ -105,10 +104,7 @@ function AuthBlock({ onNavigate }: { onNavigate?: () => void }) {
             {session.user.name}
           </span>
         </div>
-        {/* Notifications + Sign out */}
-        <div className="flex items-center justify-between px-1">
-          <NotificationBell />
-        </div>
+
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white transition-colors px-1 nav-rail-label-sm"
@@ -185,15 +181,18 @@ export default function NavRail() {
           </div>
           <span className="nav-rail-label text-sm text-white">ASTRO GURU</span>
         </Link>
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          className="text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-          aria-label={drawerOpen ? "Close menu" : "Open menu"}
-          aria-expanded={drawerOpen}
-        >
-          {drawerOpen ? <X className="w-5 h-5" strokeWidth={2.5} /> : <Menu className="w-5 h-5" strokeWidth={2.5} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell light />
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label={drawerOpen ? "Close menu" : "Open menu"}
+            aria-expanded={drawerOpen}
+          >
+            {drawerOpen ? <X className="w-6 h-6" strokeWidth={2.5} /> : <Menu className="w-6 h-6" strokeWidth={2.5} />}
+          </button>
+        </div>
       </header>
 
       {drawerOpen && (

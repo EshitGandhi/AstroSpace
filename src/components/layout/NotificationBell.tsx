@@ -78,7 +78,7 @@ export default function NotificationBell({ light = false }: { light?: boolean })
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-ink/10 z-[200] overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-ink/10 z-[200] overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-ink/5">
             <span className="font-bold text-sm text-ink">Notifications</span>
             {unreadCount > 0 && (
@@ -87,7 +87,7 @@ export default function NotificationBell({ light = false }: { light?: boolean })
               </button>
             )}
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-64 overflow-y-auto">
             {notifications.length === 0 ? (
               <p className="p-6 text-center text-sm text-ink/50">No notifications yet</p>
             ) : (
