@@ -31,7 +31,7 @@ export async function ensureStreamChannel(params: {
 
   await channel.create();
   try {
-    await channel.updatePartial({ set: { name: `${params.userName} ↔ ${params.panditName}` } });
+    await channel.updatePartial({ set: { name: `${params.userName} ↔ ${params.panditName}` } as any });
   } catch {
     // name update is optional
   }

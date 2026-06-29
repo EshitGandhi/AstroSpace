@@ -59,14 +59,14 @@ export default function Hero() {
           variants={itemVariants}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
         >
-          <Link href="/kundli">
+          <Link href="/consult">
             <AnimatedButton variant="primary" size="lg" className="w-full sm:w-auto">
-              Apni Kundli Banayein <ArrowRight className="w-5 h-5 ml-2" />
+              Consult Pandit <ArrowRight className="w-5 h-5 ml-2" />
             </AnimatedButton>
           </Link>
-          <Link href="/tools">
+          <Link href="/horoscope">
             <AnimatedButton variant="secondary" size="lg" surface="cream" className="w-full sm:w-auto">
-              Free Rashi Check
+              Free Horoscope
             </AnimatedButton>
           </Link>
         </motion.div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageCircle, Phone, Video, Calendar, Wallet, Loader2, X, AlertTriangle } from "lucide-react";
+import { MessageCircle, Phone, Video, Calendar, Wallet, Loader2, X, AlertTriangle, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
@@ -14,10 +14,12 @@ export default function ClientActions({ pandit }: { pandit: any }) {
   const [isInstant, setIsInstant] = useState(true);
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
-  const [description, setDescription] = useState("");
   const [walletBalance, setWalletBalance] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [loadingBalance, setLoadingBalance] = useState(false);
+  const [packages, setPackages] = useState<any[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
+  const [loadingPackages, setLoadingPackages] = useState(false);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -46,9 +48,32 @@ export default function ClientActions({ pandit }: { pandit: any }) {
     }
   };
 
+  const fetchPackages = async () => {
+    setLoadingPackages(true);
+    try {
+      const res = await fetch(`/api/guru/${pandit.id}/packages`);
+      if (res.ok) {
+        const data = await res.json();
+        setPackages(data);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoadingPackages(false);
+    }
+  };
+
   useEffect(() => {
-    if (modalOpen) fetchBalance();
+    if (modalOpen) {
+      fetchBalance();
+      fetchPackages();
+    }
   }, [modalOpen, session]);
+
+  // Reset selected package when mode changes
+  useEffect(() => {
+    setSelectedPackage(null);
+  }, [selectedMode]);
 
   const handleOpenModal = (mode: ConsultMode, instant: boolean) => {
     if (!session?.user) {
@@ -72,19 +97,28 @@ export default function ClientActions({ pandit }: { pandit: any }) {
     }
   };
 
-  const getMinimumBalance = (mode: ConsultMode): number => getPricePerMinute(mode);
+  const getMinimumBalance = (mode: ConsultMode): number => {
+    if (selectedPackage) return selectedPackage.packagePrice;
+    return getPricePerMinute(mode);
+  };
 
   const hasSufficientBalance = (mode: ConsultMode | null): boolean => {
     if (!mode) return false;
-    return walletBalance >= getMinimumBalance(mode);
+    const required = selectedPackage ? selectedPackage.packagePrice : getMinimumBalance(mode);
+    return walletBalance >= required;
   };
 
   const handleSubmit = async () => {
     if (!selectedMode) return;
 
-    const minRequired = getMinimumBalance(selectedMode);
-    if (walletBalance < minRequired) {
-      toast.error(`Minimum ₹${minRequired} balance required for ${selectedMode.toLowerCase()} (1 min). Please recharge.`);
+    if (!selectedPackage) {
+      toast.error("Please select a package.");
+      return;
+    }
+
+    const price = selectedPackage.packagePrice;
+    if (walletBalance < price) {
+      toast.error(`Minimum ₹${price} balance required. Please recharge.`);
       return;
     }
 
@@ -95,11 +129,22 @@ export default function ClientActions({ pandit }: { pandit: any }) {
 
     setSubmitting(true);
     try {
+      const perMinute = getPricePerMinute(selectedMode);
+      const original = perMinute * selectedPackage.duration;
+      const discountPercentage = original > 0 
+        ? Math.round(((original - selectedPackage.packagePrice) / original) * 100)
+        : 0;
+
       const body: any = {
         panditId: pandit.id,
         mode: selectedMode,
         isInstant,
-        description: description || undefined,
+        packageId: selectedPackage.id,
+        duration: selectedPackage.duration,
+        perMinutePrice: perMinute,
+        originalPrice: original,
+        discountedPrice: selectedPackage.packagePrice,
+        discountPercentage: discountPercentage,
       };
 
       if (!isInstant) {
@@ -241,16 +286,120 @@ export default function ClientActions({ pandit }: { pandit: any }) {
                 </div>
               )}
 
-              {/* Description */}
-              <div>
-                <label className="text-sm font-bold text-ink mb-2 block">Message (optional)</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Briefly describe what you'd like to discuss..."
-                  className="w-full px-4 py-3 rounded-xl border border-ink/10 bg-cream focus:border-bhagva outline-none text-sm resize-none h-20"
-                />
-              </div>
+              {/* Package Selection */}
+              {selectedMode && (
+                <div>
+                  <label className="text-sm font-bold text-ink mb-3 block">Choose Your Consultation Package</label>
+                  {loadingPackages ? (
+                    <div className="flex items-center justify-center py-6">
+                      <Loader2 className="w-6 h-6 animate-spin text-bhagva" />
+                    </div>
+                  ) : (() => {
+                    const filteredPkgs = packages.filter(p => p.type === selectedMode);
+                    if (filteredPkgs.length === 0) {
+                      return (
+                        <p className="text-sm text-ink/50 italic py-2">
+                          No packages configured for this mode yet.
+                        </p>
+                      );
+                    }
+
+                    // Sort packages by duration
+                    const sorted = [...filteredPkgs].sort((a, b) => a.duration - b.duration);
+
+                    // Precalculate original prices and discounts
+                    const packagesWithDiscounts = sorted.map(pkg => {
+                      const perMinutePrice = getPricePerMinute(pkg.type);
+                      const originalPrice = perMinutePrice * pkg.duration;
+                      const discountPercentage = originalPrice > 0 
+                        ? Math.round(((originalPrice - pkg.packagePrice) / originalPrice) * 100)
+                        : 0;
+                      return { ...pkg, originalPrice, discountPercentage };
+                    });
+
+                    // Find package ID with highest discount
+                    let highestDiscountId = "";
+                    let maxDiscount = -1;
+                    packagesWithDiscounts.forEach(p => {
+                      if (p.discountPercentage > maxDiscount) {
+                        maxDiscount = p.discountPercentage;
+                        highestDiscountId = p.id;
+                      }
+                    });
+
+                    const getBadgeText = (pkg: any, index: number, total: number) => {
+                      if (total < 2) return null;
+                      if (total === 2) {
+                        return index === 0 ? "Most Popular" : "Best Value";
+                      }
+                      if (pkg.id === highestDiscountId && pkg.discountPercentage > 0) return "Best Value";
+                      if (index === total - 1) return "Premium";
+                      if (index === Math.floor(total / 2)) return "Most Popular";
+                      return null;
+                    };
+
+                    return (
+                      <div className="space-y-3">
+                        {packagesWithDiscounts.map((pkg, idx) => {
+                          const isSelected = selectedPackage?.id === pkg.id;
+                          const badge = getBadgeText(pkg, idx, packagesWithDiscounts.length);
+                          
+                          return (
+                            <button
+                              key={pkg.id}
+                              type="button"
+                              onClick={() => setSelectedPackage(pkg)}
+                              className={`w-full text-left p-4 rounded-2xl border-2 transition-all relative overflow-hidden flex items-center justify-between ${
+                                isSelected
+                                  ? "border-bhagva bg-orange-50/50 shadow-sm"
+                                  : "border-ink/10 hover:border-bhagva/30 bg-white"
+                              }`}
+                            >
+                              {/* Badge */}
+                              {badge && (
+                                <span className="absolute top-0 right-0 bg-bhagva text-white text-[10px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                                  {badge}
+                                </span>
+                              )}
+
+                              <div className="flex-1">
+                                <span className="block text-sm font-black text-ink mb-1">
+                                  {pkg.duration} Minutes
+                                </span>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-lg font-black text-bhagva">
+                                    ₹{pkg.packagePrice}
+                                  </span>
+                                  {pkg.discountPercentage > 0 && (
+                                    <>
+                                      <span className="text-xs text-ink/40 line-through">
+                                        ₹{pkg.originalPrice}
+                                      </span>
+                                      <span className="text-xs font-bold text-green-600">
+                                        Save {pkg.discountPercentage}%
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-center">
+                                {isSelected ? (
+                                  <div className="w-6 h-6 rounded-full bg-bhagva flex items-center justify-center text-white">
+                                    <Check className="w-4 h-4" />
+                                  </div>
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full border border-ink/10" />
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
 
               {/* Wallet Info */}
               <div className="bg-cream rounded-2xl p-4">
@@ -259,19 +408,24 @@ export default function ClientActions({ pandit }: { pandit: any }) {
                     <Wallet className="w-5 h-5 text-bhagva" />
                     <span className="font-bold text-sm text-ink">Wallet Balance</span>
                   </div>
-                  <span className={`font-bold text-lg ${hasSufficientBalance(selectedMode) ? "text-green-600" : "text-red-600"}`}>
+                  <span className={`font-bold text-lg ${!selectedMode || hasSufficientBalance(selectedMode) ? "text-green-600" : "text-red-600"}`}>
                     {loadingBalance ? <Loader2 className="w-4 h-4 animate-spin" /> : `₹${walletBalance.toFixed(2)}`}
                   </span>
                 </div>
-                {selectedMode && !hasSufficientBalance(selectedMode) && (
+                {selectedMode && selectedPackage && !hasSufficientBalance(selectedMode) && (
                   <div className="mt-3 flex items-center gap-2 text-red-600 text-sm">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    <span>Minimum ₹{getMinimumBalance(selectedMode)} required (1 min). <a href="/wallet" className="underline font-bold">Recharge now</a></span>
+                    <span>Minimum ₹{selectedPackage.packagePrice} required. <a href="/wallet" className="underline font-bold">Recharge now</a></span>
                   </div>
                 )}
-                {selectedMode && hasSufficientBalance(selectedMode) && (
+                {selectedMode && selectedPackage && hasSufficientBalance(selectedMode) && (
                   <p className="mt-2 text-xs text-ink/50">
-                    Est. {Math.floor(walletBalance / getPricePerMinute(selectedMode))} minutes at ₹{getPricePerMinute(selectedMode)}/min
+                    Includes {selectedPackage.duration} mins of {selectedMode.toLowerCase()} consultation.
+                  </p>
+                )}
+                {selectedMode && !selectedPackage && (
+                  <p className="mt-2 text-xs text-ink/50 italic">
+                    Please select a package to see session details.
                   </p>
                 )}
               </div>
@@ -281,7 +435,7 @@ export default function ClientActions({ pandit }: { pandit: any }) {
             <div className="p-6 border-t border-ink/5">
               <button
                 onClick={handleSubmit}
-                disabled={!selectedMode || submitting || !hasSufficientBalance(selectedMode)}
+                disabled={!selectedMode || !selectedPackage || submitting || !hasSufficientBalance(selectedMode)}
                 className="w-full py-4 bg-bhagva text-white rounded-2xl font-bold text-base hover:bg-bhagva/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (

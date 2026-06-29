@@ -10,7 +10,18 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { panditId, mode, isInstant, scheduledTime, description } = body;
+    const {
+      panditId,
+      mode,
+      isInstant,
+      scheduledTime,
+      packageId,
+      duration,
+      perMinutePrice,
+      originalPrice,
+      discountedPrice,
+      discountPercentage,
+    } = body;
 
     if (!panditId || !mode) {
       return NextResponse.json({ error: "panditId and mode are required" }, { status: 400 });
@@ -26,7 +37,12 @@ export async function POST(req: Request) {
       mode,
       isInstant: isInstant !== false,
       scheduledTime: scheduledTime ? new Date(scheduledTime) : undefined,
-      description,
+      packageId,
+      duration,
+      perMinutePrice,
+      originalPrice,
+      discountedPrice,
+      discountPercentage,
     });
 
     return NextResponse.json(consultation, { status: 201 });

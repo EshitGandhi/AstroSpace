@@ -18,8 +18,27 @@ export async function createConsultationRequest(params: {
   isInstant: boolean;
   scheduledTime?: Date;
   description?: string;
+  packageId?: string;
+  duration?: number;
+  perMinutePrice?: number;
+  originalPrice?: number;
+  discountedPrice?: number;
+  discountPercentage?: number;
 }) {
-  const { userId, panditId, mode, isInstant, scheduledTime, description } = params;
+  const {
+    userId,
+    panditId,
+    mode,
+    isInstant,
+    scheduledTime,
+    description,
+    packageId,
+    duration,
+    perMinutePrice,
+    originalPrice,
+    discountedPrice,
+    discountPercentage,
+  } = params;
 
   const activeUserConsult = await prisma.consultation.findFirst({
     where: {
@@ -51,15 +70,24 @@ export async function createConsultationRequest(params: {
     throw new Error("PANDIT_OFFLINE");
   }
 
-  let pricePerMinute = 0;
-  switch (mode) {
-    case "CHAT": pricePerMinute = (pandit.chatPrice || 15) * 100; break;
-    case "VOICE": pricePerMinute = (pandit.callPrice || 25) * 100; break;
-    case "VIDEO": pricePerMinute = (pandit.videoCallPrice || 35) * 100; break;
-  }
+  const pricePerMinute = packageId && perMinutePrice !== undefined
+    ? perMinutePrice * 100
+    : (() => {
+        switch (mode) {
+          case "CHAT": return (pandit.chatPrice || 15) * 100;
+          case "VOICE": return (pandit.callPrice || 25) * 100;
+          case "VIDEO": return (pandit.videoCallPrice || 35) * 100;
+        }
+      })();
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user || user.walletBalance < MIN_BALANCE_PAISA) {
+  if (!user) throw new Error("USER_NOT_FOUND");
+
+  const minRequired = packageId && discountedPrice !== undefined
+    ? discountedPrice * 100
+    : MIN_BALANCE_PAISA;
+
+  if (user.walletBalance < minRequired) {
     throw new Error("INSUFFICIENT_BALANCE");
   }
 
@@ -67,7 +95,9 @@ export async function createConsultationRequest(params: {
     Date.now() + (isInstant ? INSTANT_EXPIRY_MS : SCHEDULED_EXPIRY_MS)
   );
 
-  const lockAmount = Math.min(user.walletBalance, pricePerMinute * 5);
+  const lockAmount = packageId && discountedPrice !== undefined
+    ? discountedPrice * 100
+    : Math.min(user.walletBalance, pricePerMinute * 5);
 
   const consultation = await prisma.consultation.create({
     data: {
@@ -80,6 +110,10 @@ export async function createConsultationRequest(params: {
       pricePerMinute,
       lockedAmount: lockAmount,
       expiresAt,
+      packageId,
+      packageDuration: duration,
+      packagePrice: packageId && discountedPrice !== undefined ? discountedPrice * 100 : null,
+      discountPercentage,
     },
   });
 
@@ -223,6 +257,48 @@ export async function startSession(consultationId: string, panditUserId: string)
   }
 
   const now = new Date();
+
+  // If this is a package-based consultation
+  if (consultation.packageId && consultation.packagePrice) {
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUniqueOrThrow({ where: { id: consultation.userId } });
+      await tx.walletTransaction.create({
+        data: {
+          userId: consultation.userId,
+          consultationId: consultation.id,
+          type: "CONSULTATION_DEBIT",
+          amount: -consultation.packagePrice!,
+          balanceBefore: user.walletBalance,
+          balanceAfter: user.walletBalance,
+          description: `Package payment (${consultation.packageDuration} min)`,
+        },
+      });
+    });
+
+    await creditPandit(consultation.pandit.userId, consultation.id, consultation.packagePrice);
+
+    const updated = await prisma.consultation.update({
+      where: { id: consultationId },
+      data: {
+        status: "ONGOING",
+        startedAt: now,
+        billingStartedAt: now,
+        lockedAmount: 0,
+        totalCost: consultation.packagePrice,
+      },
+    });
+
+    await prisma.consultEvent.create({
+      data: {
+        consultationId,
+        eventType: "SESSION_STARTED",
+        metadata: { mode: consultation.mode, packageId: consultation.packageId },
+      },
+    });
+
+    return updated;
+  }
+
   const updated = await prisma.consultation.update({
     where: { id: consultationId },
     data: { status: "ONGOING", startedAt: now, billingStartedAt: now },
@@ -405,6 +481,27 @@ export async function processBillingTick(consultationId: string) {
 
   if (!consultation || consultation.status !== "ONGOING") {
     return { shouldEnd: true, reason: "NOT_ACTIVE" };
+  }
+
+  // If this is a package-based consultation, we don't bill per-minute.
+  // Instead, we track duration and auto-end when packageDuration is reached.
+  if (consultation.packageId && consultation.packageDuration !== null) {
+    const elapsedMinutes = consultation.totalMinutes + 1;
+
+    if (elapsedMinutes >= consultation.packageDuration) {
+      await prisma.consultation.update({
+        where: { id: consultationId },
+        data: { totalMinutes: elapsedMinutes },
+      });
+      return { shouldEnd: true, reason: "PACKAGE_EXPIRED" };
+    }
+
+    await prisma.consultation.update({
+      where: { id: consultationId },
+      data: { totalMinutes: elapsedMinutes },
+    });
+
+    return { shouldEnd: false, lowBalance: false };
   }
 
   const charge = await chargeMinute(
