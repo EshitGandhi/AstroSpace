@@ -99,7 +99,7 @@ export default function ClientActions({ pandit }: { pandit: any }) {
 
   const getMinimumBalance = (mode: ConsultMode): number => {
     if (selectedPackage) return selectedPackage.packagePrice;
-    return getPricePerMinute(mode);
+    return Math.max(50, getPricePerMinute(mode) * 5); // Require at least 5 mins or ₹50 for pay-per-minute
   };
 
   const hasSufficientBalance = (mode: ConsultMode | null): boolean => {
@@ -111,14 +111,9 @@ export default function ClientActions({ pandit }: { pandit: any }) {
   const handleSubmit = async () => {
     if (!selectedMode) return;
 
-    if (!selectedPackage) {
-      toast.error("Please select a package.");
-      return;
-    }
-
-    const price = selectedPackage.packagePrice;
-    if (walletBalance < price) {
-      toast.error(`Minimum ₹${price} balance required. Please recharge.`);
+    const requiredBalance = getMinimumBalance(selectedMode);
+    if (walletBalance < requiredBalance) {
+      toast.error(`Minimum ₹${requiredBalance} balance required. Please recharge.`);
       return;
     }
 
@@ -130,22 +125,26 @@ export default function ClientActions({ pandit }: { pandit: any }) {
     setSubmitting(true);
     try {
       const perMinute = getPricePerMinute(selectedMode);
-      const original = perMinute * selectedPackage.duration;
-      const discountPercentage = original > 0 
-        ? Math.round(((original - selectedPackage.packagePrice) / original) * 100)
-        : 0;
 
       const body: any = {
         panditId: pandit.id,
         mode: selectedMode,
         isInstant,
-        packageId: selectedPackage.id,
-        duration: selectedPackage.duration,
         perMinutePrice: perMinute,
-        originalPrice: original,
-        discountedPrice: selectedPackage.packagePrice,
-        discountPercentage: discountPercentage,
       };
+
+      if (selectedPackage) {
+        const original = perMinute * selectedPackage.duration;
+        const discountPercentage = original > 0 
+          ? Math.round(((original - selectedPackage.packagePrice) / original) * 100)
+          : 0;
+
+        body.packageId = selectedPackage.id;
+        body.duration = selectedPackage.duration;
+        body.originalPrice = original;
+        body.discountedPrice = selectedPackage.packagePrice;
+        body.discountPercentage = discountPercentage;
+      }
 
       if (!isInstant) {
         body.scheduledTime = new Date(`${scheduledDate}T${scheduledTime}:00`).toISOString();
@@ -289,7 +288,10 @@ export default function ClientActions({ pandit }: { pandit: any }) {
               {/* Package Selection */}
               {selectedMode && (
                 <div>
-                  <label className="text-sm font-bold text-ink mb-3 block">Choose Your Consultation Package</label>
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-sm font-bold text-ink block">Choose Your Consultation Package</label>
+                    <span className="text-xs font-semibold text-ink/50 bg-ink/5 px-2 py-1 rounded-md">Optional</span>
+                  </div>
                   {loadingPackages ? (
                     <div className="flex items-center justify-center py-6">
                       <Loader2 className="w-6 h-6 animate-spin text-bhagva" />
@@ -348,7 +350,7 @@ export default function ClientActions({ pandit }: { pandit: any }) {
                             <button
                               key={pkg.id}
                               type="button"
-                              onClick={() => setSelectedPackage(pkg)}
+                              onClick={() => setSelectedPackage(isSelected ? null : pkg)}
                               className={`w-full text-left p-4 rounded-2xl border-2 transition-all relative overflow-hidden flex items-center justify-between ${
                                 isSelected
                                   ? "border-bhagva bg-orange-50/50 shadow-sm"
@@ -412,10 +414,10 @@ export default function ClientActions({ pandit }: { pandit: any }) {
                     {loadingBalance ? <Loader2 className="w-4 h-4 animate-spin" /> : `₹${walletBalance.toFixed(2)}`}
                   </span>
                 </div>
-                {selectedMode && selectedPackage && !hasSufficientBalance(selectedMode) && (
+                {selectedMode && !hasSufficientBalance(selectedMode) && (
                   <div className="mt-3 flex items-center gap-2 text-red-600 text-sm">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    <span>Minimum ₹{selectedPackage.packagePrice} required. <a href="/wallet" className="underline font-bold">Recharge now</a></span>
+                    <span>Minimum ₹{getMinimumBalance(selectedMode)} required. <a href="/wallet" className="underline font-bold">Recharge now</a></span>
                   </div>
                 )}
                 {selectedMode && selectedPackage && hasSufficientBalance(selectedMode) && (
@@ -424,8 +426,8 @@ export default function ClientActions({ pandit }: { pandit: any }) {
                   </p>
                 )}
                 {selectedMode && !selectedPackage && (
-                  <p className="mt-2 text-xs text-ink/50 italic">
-                    Please select a package to see session details.
+                  <p className="mt-2 text-xs text-ink/60 font-medium">
+                    Pay-per-minute mode: You will be charged ₹{getPricePerMinute(selectedMode)}/min.
                   </p>
                 )}
               </div>
@@ -435,7 +437,7 @@ export default function ClientActions({ pandit }: { pandit: any }) {
             <div className="p-6 border-t border-ink/5">
               <button
                 onClick={handleSubmit}
-                disabled={!selectedMode || !selectedPackage || submitting || !hasSufficientBalance(selectedMode)}
+                disabled={!selectedMode || submitting || !hasSufficientBalance(selectedMode)}
                 className="w-full py-4 bg-bhagva text-white rounded-2xl font-bold text-base hover:bg-bhagva/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (

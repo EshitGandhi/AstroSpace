@@ -67,6 +67,21 @@ export default function UserWalletPage() {
     }
     setRecharging(true);
     try {
+      // NOTE: Razorpay is disabled. Directly calling the test endpoint.
+      const testRes = await fetch("/api/wallet/balance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      if (testRes.ok) {
+        toast.success(`₹${amount} added to your wallet!`);
+        fetchData();
+        setCustomAmount("");
+      } else {
+        toast.error("Recharge failed");
+      }
+
+      /*
       const orderRes = await fetch("/api/wallet/recharge/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,6 +145,7 @@ export default function UserWalletPage() {
         theme: { color: "#E8590C" },
       });
       rzp.open();
+      */
     } catch {
       toast.error("Network error");
     } finally {
@@ -147,7 +163,7 @@ export default function UserWalletPage() {
 
   return (
     <div className="bg-cream min-h-screen py-24 px-6 max-w-4xl mx-auto">
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      {/* <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" /> */}
       <div className="mb-8">
         <h1 className="text-4xl font-heading font-bold text-ink flex items-center gap-3">
           <Wallet className="w-9 h-9 text-bhagva" /> My Wallet

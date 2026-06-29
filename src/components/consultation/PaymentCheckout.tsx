@@ -36,6 +36,7 @@ export default function PaymentCheckout({
 
     setLoading(true);
     try {
+      /*
       const orderRes = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -77,6 +78,14 @@ export default function PaymentCheckout({
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+      */
+      
+      // Auto-success for testing since Razorpay is disabled
+      setTimeout(() => {
+        toast.success("Test Payment successful!");
+        onSuccess();
+        setLoading(false);
+      }, 1000);
     } catch {
       toast.error("Payment could not be initiated.");
     } finally {
@@ -86,7 +95,7 @@ export default function PaymentCheckout({
 
   return (
     <>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      {/* <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" /> */}
       <GlassCard className="bg-white text-center space-y-6">
         <h2 className="text-xl font-heading font-bold">Complete Payment</h2>
         <p className="text-ink-muted">
